@@ -10,13 +10,22 @@ export const UserTypeSelection = ({ onUserTypeSelect }: UserTypeSelectionProps) 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="max-w-md w-full text-center space-y-8">
-        <div className="space-y-4">
-          <h1 className="text-3xl font-bold text-orange-900">
-            Whose device is this?
-          </h1>
-          <p className="text-lg text-orange-700">
-            Let us know who will be using this device to get started
-          </p>
+        <div className="space-y-6">
+          <div className="flex justify-center">
+            <img 
+              src="/lovable-uploads/78db9558-bb0a-4b7c-95b8-b4fca3dd8dcc.png" 
+              alt="Kidandu Logo" 
+              className="h-24 w-auto"
+            />
+          </div>
+          <div className="space-y-4">
+            <h1 className="text-3xl font-bold text-orange-900">
+              Whose device is this?
+            </h1>
+            <p className="text-lg text-orange-700">
+              Let us know who will be using this device to get started
+            </p>
+          </div>
         </div>
 
         <div className="space-y-4">
