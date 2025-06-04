@@ -28,23 +28,31 @@ const avatars = [
 ];
 
 const languages = [
-  { id: 'hausa', name: 'Hausa', flag: '🇳🇬', region: 'Nigeria/Niger' },
   { id: 'swahili', name: 'Swahili', flag: '🇰🇪', region: 'East Africa' },
-  { id: 'yoruba', name: 'Yoruba', flag: '🇳🇬', region: 'Nigeria' },
+  { id: 'hausa', name: 'Hausa', flag: '🇳🇬', region: 'Nigeria/Niger' },
   { id: 'igbo', name: 'Igbo', flag: '🇳🇬', region: 'Nigeria' },
+  { id: 'yoruba', name: 'Yoruba', flag: '🇳🇬', region: 'Nigeria' },
   { id: 'english', name: 'English', flag: '🇬🇧', region: 'Global' },
   { id: 'amharic', name: 'Amharic', flag: '🇪🇹', region: 'Ethiopia' },
   { id: 'zulu', name: 'Zulu', flag: '🇿🇦', region: 'South Africa' },
+  { id: 'xhosa', name: 'Xhosa', flag: '🇿🇦', region: 'South Africa' },
+  { id: 'oromo', name: 'Oromo', flag: '🇪🇹', region: 'Ethiopia' },
   { id: 'arabic', name: 'Arabic', flag: '🇪🇬', region: 'North Africa' },
+  { id: 'somali', name: 'Somali', flag: '🇸🇴', region: 'Somalia' },
+  { id: 'wolof', name: 'Wolof', flag: '🇸🇳', region: 'Senegal' },
+  { id: 'akan', name: 'Akan/Twi', flag: '🇬🇭', region: 'Ghana' },
+  { id: 'luganda', name: 'Luganda', flag: '🇺🇬', region: 'Uganda' },
+  { id: 'kikongo', name: 'Kikongo', flag: '🇨🇩', region: 'Central Africa' },
+  { id: 'shona', name: 'Shona', flag: '🇿🇼', region: 'Zimbabwe' },
 ];
 
 const getAvailableLanguages = (plan: string) => {
   switch (plan) {
-    case 'free': return languages.slice(0, 2);
-    case 'basic': return languages.slice(0, 4);
-    case 'standard': return languages.slice(0, 6);
+    case 'free': return languages.slice(0, 3);
+    case 'basic': return languages.slice(0, 6);
+    case 'standard': return languages.slice(0, 12);
     case 'premium': return languages;
-    default: return languages.slice(0, 2);
+    default: return languages.slice(0, 3);
   }
 };
 
@@ -107,6 +115,10 @@ export const ChildProfileSetup = ({ selectedPlan, onProfileCreated }: ChildProfi
     onProfileCreated();
   };
 
+  const handleAvatarSelect = (avatarId: string) => {
+    setSelectedAvatar(avatarId);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-100 via-emerald-50 to-teal-50 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full space-y-6">
@@ -163,21 +175,24 @@ export const ChildProfileSetup = ({ selectedPlan, onProfileCreated }: ChildProfi
 
           <div>
             <Label className="text-emerald-900 font-medium text-lg">Choose an Avatar</Label>
-            <RadioGroup value={selectedAvatar} onValueChange={setSelectedAvatar} className="mt-3">
+            <RadioGroup value={selectedAvatar} onValueChange={handleAvatarSelect} className="mt-3">
               <div className="grid grid-cols-3 gap-3">
                 {avatars.map((avatar) => (
-                  <Card
+                  <div
                     key={avatar.id}
+                    onClick={() => handleAvatarSelect(avatar.id)}
                     className={`cursor-pointer transition-all duration-200 hover:shadow-lg transform hover:scale-105 ${
                       selectedAvatar === avatar.id ? 'ring-4 ring-emerald-400 shadow-xl scale-105' : ''
                     }`}
                   >
-                    <CardContent className="p-4 text-center">
-                      <RadioGroupItem value={avatar.id} className="sr-only" />
-                      <div className="text-4xl mb-2">{avatar.emoji}</div>
-                      <div className="text-sm font-medium text-emerald-800">{avatar.name}</div>
-                    </CardContent>
-                  </Card>
+                    <Card>
+                      <CardContent className="p-4 text-center">
+                        <RadioGroupItem value={avatar.id} className="sr-only" />
+                        <div className="text-4xl mb-2">{avatar.emoji}</div>
+                        <div className="text-sm font-medium text-emerald-800">{avatar.name}</div>
+                      </CardContent>
+                    </Card>
+                  </div>
                 ))}
               </div>
             </RadioGroup>
