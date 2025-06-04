@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +7,8 @@ import { Star, BookOpen, Gamepad2, Award, Mic, User, Lock, ArrowLeft, WifiOff, D
 import { useToast } from '@/hooks/use-toast';
 import { OfflineIndicator } from '../common/OfflineIndicator';
 import { ContentCard } from '../learning/ContentCard';
+import { GameCenter } from '../learning/GameCenter';
+import { RewardsScreen } from '../learning/RewardsScreen';
 
 interface ChildProfile {
   id: string;
@@ -45,6 +46,7 @@ const getLanguageFlag = (languageId: string) => {
 
 export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps) => {
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [currentView, setCurrentView] = useState<'dashboard' | 'games' | 'rewards'>('dashboard');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [downloadedContent, setDownloadedContent] = useState<string[]>([]);
   const { toast } = useToast();
@@ -66,16 +68,19 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
     };
   }, []);
 
+  // Show different views based on currentView state
+  if (currentView === 'games') {
+    return <GameCenter profile={profile} onBack={() => setCurrentView('dashboard')} />;
+  }
+
+  if (currentView === 'rewards') {
+    return <RewardsScreen profile={profile} onBack={() => setCurrentView('dashboard')} />;
+  }
+
   const mockStories = [
     { id: '1', title: 'The Lion and the Mouse', locked: false, completed: true, image: '🦁' },
     { id: '2', title: 'The Wise Elephant', locked: false, completed: false, image: '🐘' },
     { id: '3', title: 'The Dancing Butterfly', locked: true, completed: false, image: '🦋' },
-  ];
-
-  const mockGames = [
-    { id: '4', title: 'Lion Story Game', type: 'vocabulary', locked: false, image: '🎯' },
-    { id: '5', title: 'Elephant Vocabulary', type: 'grammar', locked: false, image: '🧩' },
-    { id: '6', title: 'Word Match Safari', type: 'pronunciation', locked: profile.plan === 'free', image: '🔊' },
   ];
 
   const handleActivityTap = (activityId: string) => {
@@ -87,6 +92,14 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
         description: "Ask your parent to download this for offline use!",
       });
       return;
+    }
+    
+    // Award stars for activity completion
+    if (activityId === 'story') {
+      toast({
+        title: "🎉 You earned 2 stars!",
+        description: "Great job reading the story!",
+      });
     }
     
     toast({
@@ -180,30 +193,47 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
           </CardContent>
         </Card>
 
-        {/* Games Section */}
-        <Card className="mb-6 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
-          <CardHeader className="text-center pb-3">
-            <CardTitle className="flex items-center justify-center gap-2 text-purple-900">
-              <Gamepad2 className="w-6 h-6" />
-              Play a Game
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {mockGames.map((game) => (
-              <ContentCard
-                key={game.id}
-                id={game.id}
-                title={game.title}
-                type="game"
-                image={game.image}
-                locked={game.locked}
-                downloaded={downloadedContent.includes(game.id)}
-                onTap={handleActivityTap}
-                plan={profile.plan}
-              />
-            ))}
-          </CardContent>
-        </Card>
+        {/* Main Activity Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Play Games */}
+          <Card 
+            className="hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 cursor-pointer"
+            onClick={() => setCurrentView('games')}
+          >
+            <CardContent className="p-6 text-center">
+              <Gamepad2 className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-purple-900 mb-2">Play a Game</h3>
+              <p className="text-purple-700 mb-4">Fun games to practice what you've learned</p>
+              <Button className="w-full bg-purple-500 hover:bg-purple-600 text-white">
+                Go to Game Center
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* My Rewards */}
+          <Card 
+            className="hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 cursor-pointer"
+            onClick={() => setCurrentView('rewards')}
+          >
+            <CardContent className="p-6 text-center">
+              <Award className="w-12 h-12 text-amber-600 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-amber-900 mb-2">My Rewards</h3>
+              <div className="flex justify-center gap-4 mb-4">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-amber-800">{profile.badges.length}</p>
+                  <p className="text-xs text-amber-600">Badges</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-amber-800">{profile.wordsLearned}</p>
+                  <p className="text-xs text-amber-600">Words</p>
+                </div>
+              </div>
+              <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white">
+                View My Collection
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Secondary Activities */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -234,27 +264,27 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
             </CardContent>
           </Card>
 
-          {/* My Rewards */}
-          <Card className="hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
+          {/* Learning Progress */}
+          <Card className="hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-indigo-200 bg-gradient-to-br from-indigo-50 to-blue-50">
             <CardContent className="p-6 text-center">
-              <Award className="w-12 h-12 text-amber-600 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-amber-900 mb-2">My Rewards</h3>
+              <Star className="w-12 h-12 text-indigo-600 mx-auto mb-4 fill-indigo-400" />
+              <h3 className="text-lg font-bold text-indigo-900 mb-2">Learning Progress</h3>
               <div className="flex justify-center gap-4 mb-4">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-amber-800">{profile.badges.length}</p>
-                  <p className="text-xs text-amber-600">Badges</p>
+                  <p className="text-2xl font-bold text-indigo-800">{profile.storiesCompleted}</p>
+                  <p className="text-xs text-indigo-600">Stories</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-amber-800">{profile.wordsLearned}</p>
-                  <p className="text-xs text-amber-600">Words</p>
+                  <p className="text-2xl font-bold text-indigo-800">3</p>
+                  <p className="text-xs text-indigo-600">Streak</p>
                 </div>
               </div>
               <Button 
                 variant="outline"
-                className="border-amber-300 text-amber-700 hover:bg-amber-50 w-full"
-                onClick={() => handleActivityTap('rewards')}
+                className="border-indigo-300 text-indigo-700 hover:bg-indigo-50 w-full"
+                onClick={() => handleActivityTap('progress')}
               >
-                View My Collection
+                View Details
               </Button>
             </CardContent>
           </Card>

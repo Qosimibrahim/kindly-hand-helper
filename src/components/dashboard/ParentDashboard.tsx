@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { UserPlus, Settings, LogOut, Users, Crown, AlertTriangle, QrCode, Copy, Smartphone, Download, Shield, Globe, Bell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { DownloadManager } from './DownloadManager';
+import { ProgressTracker } from './ProgressTracker';
 
 interface ChildProfile {
   id: string;
@@ -330,6 +331,13 @@ export const ParentDashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Progress Tracker - NEW */}
+        {childProfiles.length > 0 && (
+          <div className="mb-8">
+            <ProgressTracker childProfiles={childProfiles} />
+          </div>
+        )}
 
         {/* Child Profiles Section */}
         <div className="mb-8">
