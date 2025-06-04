@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Star, BookOpen, Gamepad2, Award, Mic, User, Lock, ArrowLeft } from 'lucide-react';
+import { Star, BookOpen, Gamepad2, Award, Mic, User, Lock, ArrowLeft, WifiOff, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { OfflineIndicator } from '../common/OfflineIndicator';
+import { ContentCard } from '../learning/ContentCard';
 
 interface ChildProfile {
   id: string;
@@ -43,37 +45,75 @@ const getLanguageFlag = (languageId: string) => {
 
 export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps) => {
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [downloadedContent, setDownloadedContent] = useState<string[]>([]);
   const { toast } = useToast();
 
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Load downloaded content
+    const downloaded = JSON.parse(localStorage.getItem('downloadedContent') || '[]');
+    setDownloadedContent(downloaded);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   const mockStories = [
-    { id: 1, title: 'The Lion and the Mouse', locked: false, completed: true, image: '🦁' },
-    { id: 2, title: 'The Wise Elephant', locked: false, completed: false, image: '🐘' },
-    { id: 3, title: 'The Dancing Butterfly', locked: true, completed: false, image: '🦋' },
+    { id: '1', title: 'The Lion and the Mouse', locked: false, completed: true, image: '🦁' },
+    { id: '2', title: 'The Wise Elephant', locked: false, completed: false, image: '🐘' },
+    { id: '3', title: 'The Dancing Butterfly', locked: true, completed: false, image: '🦋' },
   ];
 
   const mockGames = [
-    { id: 1, title: 'Word Match', type: 'vocabulary', locked: false, image: '🎯' },
-    { id: 2, title: 'Sentence Builder', type: 'grammar', locked: false, image: '🧩' },
-    { id: 3, title: 'Sound Safari', type: 'pronunciation', locked: profile.plan === 'free', image: '🔊' },
+    { id: '4', title: 'Lion Story Game', type: 'vocabulary', locked: false, image: '🎯' },
+    { id: '5', title: 'Elephant Vocabulary', type: 'grammar', locked: false, image: '🧩' },
+    { id: '6', title: 'Word Match Safari', type: 'pronunciation', locked: profile.plan === 'free', image: '🔊' },
   ];
 
-  const handleActivityTap = (activity: string, locked: boolean) => {
-    if (locked) {
+  const handleActivityTap = (activityId: string) => {
+    const isDownloaded = downloadedContent.includes(activityId);
+    
+    if (!isOnline && !isDownloaded) {
       toast({
-        title: "Oops! This isn't available right now",
-        description: "Ask your parent to unlock it for you! 🙏",
+        title: "Need Internet or Download 📶",
+        description: "Ask your parent to download this for offline use!",
       });
       return;
     }
     
     toast({
-      title: `Opening ${activity}...`,
+      title: `Opening activity...`,
       description: "Loading your learning adventure! 🚀",
+    });
+  };
+
+  const handleVocabularyPractice = () => {
+    if (!isOnline) {
+      toast({
+        title: "Voice Practice Needs Internet 🌐",
+        description: "Voice practice is only available when connected to the internet.",
+      });
+      return;
+    }
+    
+    toast({
+      title: "Starting Voice Practice! 🎤",
+      description: "Get ready to practice your pronunciation!",
     });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-100 via-yellow-50 to-amber-100 p-4">
+      <OfflineIndicator />
+      
       <div className="max-w-4xl mx-auto">
         {/* Header with Profile */}
         <div className="flex justify-between items-center mb-6">
@@ -114,106 +154,82 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
           </CardContent>
         </Card>
 
-        {/* Main Activity Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {/* Stories */}
-          <Card className="hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50">
-            <CardHeader className="text-center pb-3">
-              <CardTitle className="flex items-center justify-center gap-2 text-blue-900">
-                <BookOpen className="w-6 h-6" />
-                Read a Story
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {mockStories.slice(0, 2).map((story) => (
-                <Button
-                  key={story.id}
-                  variant={story.locked ? "outline" : "default"}
-                  className={`w-full h-16 text-left justify-start gap-3 ${
-                    story.locked 
-                      ? 'border-gray-300 text-gray-500 hover:bg-gray-50' 
-                      : story.completed
-                      ? 'bg-green-100 border-green-300 text-green-800 hover:bg-green-200'
-                      : 'bg-blue-500 hover:bg-blue-600 text-white'
-                  }`}
-                  onClick={() => handleActivityTap(`Story: ${story.title}`, story.locked)}
-                  disabled={story.locked}
-                >
-                  <span className="text-2xl">{story.image}</span>
-                  <div className="flex-1">
-                    <p className="font-medium">{story.title}</p>
-                    <p className="text-xs opacity-75">
-                      {story.completed ? 'Completed ✅' : story.locked ? 'Locked 🔒' : 'Start reading'}
-                    </p>
-                  </div>
-                  {story.locked && <Lock className="w-4 h-4" />}
-                </Button>
-              ))}
-              <Button 
-                variant="ghost" 
-                className="w-full text-blue-600 hover:bg-blue-50"
-                onClick={() => handleActivityTap('Story Library', false)}
-              >
-                See all stories →
-              </Button>
-            </CardContent>
-          </Card>
+        {/* Stories Section */}
+        <Card className="mb-6 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50">
+          <CardHeader className="text-center pb-3">
+            <CardTitle className="flex items-center justify-center gap-2 text-blue-900">
+              <BookOpen className="w-6 h-6" />
+              Read a Story
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {mockStories.map((story) => (
+              <ContentCard
+                key={story.id}
+                id={story.id}
+                title={story.title}
+                type="story"
+                image={story.image}
+                locked={story.locked}
+                completed={story.completed}
+                downloaded={downloadedContent.includes(story.id)}
+                onTap={handleActivityTap}
+                plan={profile.plan}
+              />
+            ))}
+          </CardContent>
+        </Card>
 
-          {/* Games */}
-          <Card className="hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
-            <CardHeader className="text-center pb-3">
-              <CardTitle className="flex items-center justify-center gap-2 text-purple-900">
-                <Gamepad2 className="w-6 h-6" />
-                Play a Game
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {mockGames.slice(0, 2).map((game) => (
-                <Button
-                  key={game.id}
-                  variant={game.locked ? "outline" : "default"}
-                  className={`w-full h-16 text-left justify-start gap-3 ${
-                    game.locked 
-                      ? 'border-gray-300 text-gray-500 hover:bg-gray-50' 
-                      : 'bg-purple-500 hover:bg-purple-600 text-white'
-                  }`}
-                  onClick={() => handleActivityTap(`Game: ${game.title}`, game.locked)}
-                  disabled={game.locked}
-                >
-                  <span className="text-2xl">{game.image}</span>
-                  <div className="flex-1">
-                    <p className="font-medium">{game.title}</p>
-                    <p className="text-xs opacity-75">
-                      {game.locked ? 'Ask parent to unlock' : 'Tap to play'}
-                    </p>
-                  </div>
-                  {game.locked && <Lock className="w-4 h-4" />}
-                </Button>
-              ))}
-              <Button 
-                variant="ghost" 
-                className="w-full text-purple-600 hover:bg-purple-50"
-                onClick={() => handleActivityTap('Game Center', false)}
-              >
-                See all games →
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Games Section */}
+        <Card className="mb-6 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
+          <CardHeader className="text-center pb-3">
+            <CardTitle className="flex items-center justify-center gap-2 text-purple-900">
+              <Gamepad2 className="w-6 h-6" />
+              Play a Game
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {mockGames.map((game) => (
+              <ContentCard
+                key={game.id}
+                id={game.id}
+                title={game.title}
+                type="game"
+                image={game.image}
+                locked={game.locked}
+                downloaded={downloadedContent.includes(game.id)}
+                onTap={handleActivityTap}
+                plan={profile.plan}
+              />
+            ))}
+          </CardContent>
+        </Card>
 
         {/* Secondary Activities */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Practice Speaking */}
           <Card className="hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
             <CardContent className="p-6 text-center">
-              <Mic className="w-12 h-12 text-green-600 mx-auto mb-4" />
+              <div className="relative">
+                <Mic className={`w-12 h-12 mx-auto mb-4 ${isOnline ? 'text-green-600' : 'text-gray-400'}`} />
+                {!isOnline && (
+                  <WifiOff className="w-6 h-6 text-red-500 absolute -top-1 -right-1" />
+                )}
+              </div>
               <h3 className="text-lg font-bold text-green-900 mb-2">Practice Speaking</h3>
-              <p className="text-green-700 mb-4">Learn new words and practice pronunciation</p>
+              <p className={`mb-4 ${isOnline ? 'text-green-700' : 'text-gray-600'}`}>
+                {isOnline ? 'Learn new words and practice pronunciation' : 'Voice practice needs internet'}
+              </p>
               <Button 
-                className="bg-green-500 hover:bg-green-600 text-white w-full"
-                onClick={() => handleActivityTap('Vocabulary Practice', false)}
+                className={`w-full ${
+                  isOnline 
+                    ? 'bg-green-500 hover:bg-green-600 text-white' 
+                    : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                }`}
+                onClick={handleVocabularyPractice}
+                disabled={!isOnline}
               >
-                Start Practice Session
+                {isOnline ? 'Start Practice Session' : 'Needs Internet Connection'}
               </Button>
             </CardContent>
           </Card>
@@ -236,7 +252,7 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
               <Button 
                 variant="outline"
                 className="border-amber-300 text-amber-700 hover:bg-amber-50 w-full"
-                onClick={() => handleActivityTap('Rewards', false)}
+                onClick={() => handleActivityTap('rewards')}
               >
                 View My Collection
               </Button>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { UserTypeSelection } from '@/components/onboarding/UserTypeSelection';
 import { ParentOnboarding } from '@/components/onboarding/ParentOnboarding';
@@ -6,6 +5,7 @@ import { ChildLinking } from '@/components/onboarding/ChildLinking';
 import { ParentDashboard } from '@/components/dashboard/ParentDashboard';
 import { ChildDashboard } from '@/components/dashboard/ChildDashboard';
 import { ProfileSwitcher } from '@/components/dashboard/ProfileSwitcher';
+import { useToast } from '@/hooks/use-toast';
 
 type AppMode = 'user-type' | 'parent-onboarding' | 'child-linking' | 'parent-dashboard' | 'child-dashboard' | 'profile-switcher';
 
@@ -26,8 +26,32 @@ const Index = () => {
   const [currentMode, setCurrentMode] = useState<AppMode>('user-type');
   const [activeChildProfile, setActiveChildProfile] = useState<ChildProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
+    // Handle online/offline sync
+    const handleOnline = () => {
+      // Sync progress when coming back online
+      const offlineProgress = localStorage.getItem('offlineProgress');
+      if (offlineProgress) {
+        toast({
+          title: "Syncing Progress... 🔄",
+          description: "Updating your achievements and progress",
+        });
+        
+        // Simulate sync process
+        setTimeout(() => {
+          localStorage.removeItem('offlineProgress');
+          toast({
+            title: "Progress Synced! ✅",
+            description: "All your offline learning has been saved",
+          });
+        }, 2000);
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+
     const checkExistingSession = () => {
       const parentSession = localStorage.getItem('parentSession');
       const linkedChildProfile = localStorage.getItem('linkedChildProfile');
@@ -81,7 +105,11 @@ const Index = () => {
     };
 
     checkExistingSession();
-  }, []);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+    };
+  }, [toast]);
 
   const handleUserTypeSelect = (type: 'parent' | 'child') => {
     if (type === 'parent') {

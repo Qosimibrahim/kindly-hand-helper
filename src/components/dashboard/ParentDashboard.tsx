@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserPlus, Settings, LogOut, Users, Crown, AlertTriangle, QrCode, Copy, Smartphone, Download, Shield, Globe, Bell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { DownloadManager } from './DownloadManager';
 
 interface ChildProfile {
   id: string;
@@ -105,12 +106,6 @@ export const ParentDashboard = () => {
     { id: 2, name: 'Android Tablet', lastActive: '1 day ago', profiles: ['Ayo'] },
   ];
 
-  const mockDownloads = [
-    { id: 1, title: 'Lion Stories Pack', size: '45 MB', status: 'downloaded', profile: 'Ayo' },
-    { id: 2, title: 'Swahili Vocabulary', size: '28 MB', status: 'pending', profile: 'Kemi' },
-    { id: 3, title: 'Pronunciation Games', size: '67 MB', status: 'available', profile: 'All' },
-  ];
-
   const copyLinkingCode = () => {
     navigator.clipboard.writeText(linkingCode);
     toast({
@@ -202,39 +197,21 @@ export const ParentDashboard = () => {
               </DialogContent>
             </Dialog>
 
-            <Dialog open={showDownloadModal} onOpenChange={setShowDownloadModal}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="border-orange-300 text-orange-700 hover:bg-orange-50">
-                  <Download className="w-4 h-4 mr-2" />
-                  Downloads
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle className="text-orange-900">Downloads Manager</DialogTitle>
-                  <DialogDescription>
-                    Manage offline content for your children
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  {mockDownloads.map((item) => (
-                    <Card key={item.id} className="border-orange-200">
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <h4 className="font-medium text-orange-900">{item.title}</h4>
-                            <p className="text-sm text-orange-600">{item.size} • {item.profile}</p>
-                          </div>
-                          <Badge variant={item.status === 'downloaded' ? 'default' : 'outline'}>
-                            {item.status}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </DialogContent>
-            </Dialog>
+            <DownloadManager 
+              open={showDownloadModal} 
+              onOpenChange={setShowDownloadModal} 
+            />
+            <DialogTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-orange-300 text-orange-700 hover:bg-orange-50"
+                onClick={() => setShowDownloadModal(true)}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Downloads
+              </Button>
+            </DialogTrigger>
 
             <Dialog open={showSettingsModal} onOpenChange={setShowSettingsModal}>
               <DialogTrigger asChild>
