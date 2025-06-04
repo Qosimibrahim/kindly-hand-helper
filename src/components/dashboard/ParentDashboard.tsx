@@ -201,17 +201,15 @@ export const ParentDashboard = () => {
               open={showDownloadModal} 
               onOpenChange={setShowDownloadModal} 
             />
-            <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="border-orange-300 text-orange-700 hover:bg-orange-50"
-                onClick={() => setShowDownloadModal(true)}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Downloads
-              </Button>
-            </DialogTrigger>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="border-orange-300 text-orange-700 hover:bg-orange-50"
+              onClick={() => setShowDownloadModal(true)}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Downloads
+            </Button>
 
             <Dialog open={showSettingsModal} onOpenChange={setShowSettingsModal}>
               <DialogTrigger asChild>
