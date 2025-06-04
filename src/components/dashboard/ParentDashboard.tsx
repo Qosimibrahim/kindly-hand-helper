@@ -1,10 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { UserPlus, Settings, LogOut, Users, Crown, AlertTriangle, QrCode, Copy } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { UserPlus, Settings, LogOut, Users, Crown, AlertTriangle, QrCode, Copy, Smartphone, Download, Shield, Globe, Bell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ChildProfile {
@@ -60,7 +61,13 @@ export const ParentDashboard = () => {
   const [parentData, setParentData] = useState<any>(null);
   const [childProfiles, setChildProfiles] = useState<ChildProfile[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [linkingCode] = useState('PARENT123'); // Mock linking code
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showDeviceModal, setShowDeviceModal] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [linkingCode] = useState('PARENT123');
+  const [subtitleSetting, setSubtitleSetting] = useState('local');
+  const [appLanguage, setAppLanguage] = useState('english');
+  const [notifications, setNotifications] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -92,6 +99,17 @@ export const ParentDashboard = () => {
       description: "This would navigate to the add child profile flow",
     });
   };
+
+  const mockDevices = [
+    { id: 1, name: 'iPad - Kitchen', lastActive: '2 hours ago', profiles: ['Ayo', 'Kemi'] },
+    { id: 2, name: 'Android Tablet', lastActive: '1 day ago', profiles: ['Ayo'] },
+  ];
+
+  const mockDownloads = [
+    { id: 1, title: 'Lion Stories Pack', size: '45 MB', status: 'downloaded', profile: 'Ayo' },
+    { id: 2, title: 'Swahili Vocabulary', size: '28 MB', status: 'pending', profile: 'Kemi' },
+    { id: 3, title: 'Pronunciation Games', size: '67 MB', status: 'available', profile: 'All' },
+  ];
 
   const copyLinkingCode = () => {
     navigator.clipboard.writeText(linkingCode);
@@ -143,12 +161,144 @@ export const ParentDashboard = () => {
           <div className="flex items-center gap-3">
             <Badge variant="outline" className="px-3 py-1 border-orange-300 text-orange-800">
               <Crown className="w-4 h-4 mr-1" />
-              {parentData.selectedPlan.charAt(0).toUpperCase() + parentData.selectedPlan.slice(1)} Plan
+              {parentData?.selectedPlan.charAt(0).toUpperCase() + parentData?.selectedPlan.slice(1)} Plan
             </Badge>
-            <Button variant="outline" size="sm" className="border-orange-300 text-orange-700 hover:bg-orange-50">
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </Button>
+            
+            <Dialog open={showDeviceModal} onOpenChange={setShowDeviceModal}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="border-orange-300 text-orange-700 hover:bg-orange-50">
+                  <Smartphone className="w-4 h-4 mr-2" />
+                  Devices
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle className="text-orange-900">Manage Devices</DialogTitle>
+                  <DialogDescription>
+                    View and manage devices linked to your account
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  {mockDevices.map((device) => (
+                    <Card key={device.id} className="border-orange-200">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-medium text-orange-900">{device.name}</h4>
+                            <p className="text-sm text-orange-600">Last active: {device.lastActive}</p>
+                            <p className="text-sm text-orange-600">Profiles: {device.profiles.join(', ')}</p>
+                          </div>
+                          <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">
+                            Unlink
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  <Button className="w-full bg-orange-500 hover:bg-orange-600">
+                    Link New Device
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={showDownloadModal} onOpenChange={setShowDownloadModal}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="border-orange-300 text-orange-700 hover:bg-orange-50">
+                  <Download className="w-4 h-4 mr-2" />
+                  Downloads
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle className="text-orange-900">Downloads Manager</DialogTitle>
+                  <DialogDescription>
+                    Manage offline content for your children
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  {mockDownloads.map((item) => (
+                    <Card key={item.id} className="border-orange-200">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h4 className="font-medium text-orange-900">{item.title}</h4>
+                            <p className="text-sm text-orange-600">{item.size} • {item.profile}</p>
+                          </div>
+                          <Badge variant={item.status === 'downloaded' ? 'default' : 'outline'}>
+                            {item.status}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={showSettingsModal} onOpenChange={setShowSettingsModal}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="border-orange-300 text-orange-700 hover:bg-orange-50">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-orange-900">
+                    <Settings className="w-5 h-5 mr-2 inline" />
+                    Settings
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-6">
+                  <div>
+                    <Label className="text-orange-900 font-medium">Subtitle Preferences</Label>
+                    <Select value={subtitleSetting} onValueChange={setSubtitleSetting}>
+                      <SelectTrigger className="mt-2">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="local">Show subtitles in Local Language</SelectItem>
+                        <SelectItem value="english">Show subtitles in English</SelectItem>
+                        <SelectItem value="both">Show both</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label className="text-orange-900 font-medium">App Interface Language</Label>
+                    <Select value={appLanguage} onValueChange={setAppLanguage}>
+                      <SelectTrigger className="mt-2">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="english">English</SelectItem>
+                        <SelectItem value="french">Français</SelectItem>
+                        <SelectItem value="portuguese">Português</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Label className="text-orange-900 font-medium">Push Notifications</Label>
+                    <Button
+                      variant={notifications ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setNotifications(!notifications)}
+                    >
+                      <Bell className="w-4 h-4 mr-1" />
+                      {notifications ? 'On' : 'Off'}
+                    </Button>
+                  </div>
+
+                  <Button className="w-full bg-orange-500 hover:bg-orange-600">
+                    <Shield className="w-4 h-4 mr-2" />
+                    Update Parental PIN
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
             <Button variant="ghost" size="sm" onClick={handleLogout} className="text-orange-600 hover:bg-orange-50">
               <LogOut className="w-4 h-4 mr-2" />
               Logout
