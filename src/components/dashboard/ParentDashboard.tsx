@@ -58,47 +58,11 @@ export const ParentDashboard = () => {
     
     if (profiles) {
       const parsedProfiles = JSON.parse(profiles);
-      const enhancedProfiles = parsedProfiles.map((profile: any) => ({
-        ...profile,
-        stars: profile.stars || 15,
-        badges: profile.badges || ['first-story', 'word-master'],
-        wordsLearned: profile.wordsLearned || 8,
-        storiesCompleted: profile.storiesCompleted || 2,
-        plan: profile.plan || 'free',
-      }));
-      setChildProfiles(enhancedProfiles);
-      localStorage.setItem('childProfiles', JSON.stringify(enhancedProfiles));
+      setChildProfiles(parsedProfiles);
     } else {
-      const sampleProfiles = [
-        {
-          id: 'child1',
-          name: 'Ayo',
-          ageGroup: '5-7',
-          avatar: 'avatar1',
-          language: 'hausa',
-          stars: 15,
-          badges: ['first-story', 'word-master'],
-          wordsLearned: 8,
-          storiesCompleted: 2,
-          plan: 'free',
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: 'child2',
-          name: 'Kemi',
-          ageGroup: '8-10',
-          avatar: 'avatar3',
-          language: 'yoruba',
-          stars: 22,
-          badges: ['first-story', 'word-master', 'streak-7'],
-          wordsLearned: 15,
-          storiesCompleted: 4,
-          plan: 'free',
-          createdAt: new Date().toISOString(),
-        }
-      ];
-      setChildProfiles(sampleProfiles);
-      localStorage.setItem('childProfiles', JSON.stringify(sampleProfiles));
+      // Initialize with empty array instead of sample data
+      setChildProfiles([]);
+      localStorage.setItem('childProfiles', JSON.stringify([]));
     }
   }, []);
 
@@ -116,6 +80,21 @@ export const ParentDashboard = () => {
       title: "Add Child Profile",
       description: "This would navigate to the add child profile flow",
     });
+  };
+
+  const handleDeleteChild = (childId: string) => {
+    const updatedProfiles = childProfiles.filter(profile => profile.id !== childId);
+    setChildProfiles(updatedProfiles);
+    localStorage.setItem('childProfiles', JSON.stringify(updatedProfiles));
+    
+    // Remove active child profile if it's the one being deleted
+    const activeProfile = localStorage.getItem('activeChildProfile');
+    if (activeProfile) {
+      const active = JSON.parse(activeProfile);
+      if (active.id === childId) {
+        localStorage.removeItem('activeChildProfile');
+      }
+    }
   };
 
   const handleLogout = () => {
@@ -171,6 +150,7 @@ export const ParentDashboard = () => {
           maxProfiles={maxProfiles}
           onAddChild={handleAddChild}
           onUpgradeModal={() => setShowUpgradeModal(true)}
+          onDeleteChild={handleDeleteChild}
         />
 
         <DownloadManager 

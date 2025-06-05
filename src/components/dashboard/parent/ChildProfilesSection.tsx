@@ -2,7 +2,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { UserPlus, AlertTriangle, Crown } from 'lucide-react';
+import { UserPlus, AlertTriangle, Crown, Trash2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface ChildProfile {
   id: string;
@@ -23,6 +24,7 @@ interface ChildProfilesSectionProps {
   maxProfiles: number;
   onAddChild: () => void;
   onUpgradeModal: () => void;
+  onDeleteChild: (childId: string) => void;
 }
 
 const getAvatarEmoji = (avatarId: string) => {
@@ -58,24 +60,47 @@ export const ChildProfilesSection = ({
   childProfiles, 
   maxProfiles, 
   onAddChild, 
-  onUpgradeModal 
+  onUpgradeModal,
+  onDeleteChild
 }: ChildProfilesSectionProps) => {
+  const { toast } = useToast();
+
+  const handleDeleteChild = (childId: string, childName: string) => {
+    if (confirm(`Are you sure you want to delete ${childName}'s profile? This action cannot be undone.`)) {
+      onDeleteChild(childId);
+      toast({
+        title: "Profile Deleted",
+        description: `${childName}'s profile has been removed.`,
+      });
+    }
+  };
+
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-orange-900">Child Profiles</h2>
-        <Button 
-          onClick={onAddChild} 
-          className="flex items-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-lg"
-        >
-          <UserPlus className="w-4 h-4 mr-2" />
-          Add Child
-        </Button>
+        {childProfiles.length < maxProfiles && (
+          <Button 
+            onClick={onAddChild} 
+            className="flex items-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-lg"
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Add Child
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {childProfiles.map((profile) => (
-          <Card key={profile.id} className="hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-orange-200">
+          <Card key={profile.id} className="hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-orange-200 relative">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDeleteChild(profile.id, profile.name)}
+              className="absolute top-2 right-2 h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
             <CardHeader className="text-center bg-gradient-to-br from-orange-50 to-amber-50">
               <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <span className="text-4xl">
@@ -112,7 +137,22 @@ export const ChildProfilesSection = ({
           </Card>
         ))}
 
-        {childProfiles.length < maxProfiles && (
+        {childProfiles.length === 0 && (
+          <Card 
+            className="border-2 border-dashed border-orange-300 hover:border-orange-400 cursor-pointer transition-colors duration-200 hover:bg-orange-50 col-span-full"
+            onClick={onAddChild}
+          >
+            <CardContent className="flex flex-col items-center justify-center h-80 text-orange-600">
+              <UserPlus className="w-16 h-16 mb-4" />
+              <p className="text-lg font-bold">Add Your First Child Profile</p>
+              <p className="text-sm text-center">
+                Get started by creating a profile for your child
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {childProfiles.length > 0 && childProfiles.length < maxProfiles && (
           <Card 
             className="border-2 border-dashed border-orange-300 hover:border-orange-400 cursor-pointer transition-colors duration-200 hover:bg-orange-50"
             onClick={onAddChild}

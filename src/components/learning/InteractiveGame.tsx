@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Star, Trophy, Mic, Volume2, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Star, Trophy, Mic, Volume2, RefreshCw, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface InteractiveGameProps {
@@ -12,9 +12,10 @@ interface InteractiveGameProps {
   gameType: 'vocabulary' | 'story' | 'pronunciation' | 'sentence-builder';
   onBack: () => void;
   onComplete: (stars: number) => void;
+  onNextGame?: () => void;
 }
 
-export const InteractiveGame = ({ gameId, gameTitle, gameType, onBack, onComplete }: InteractiveGameProps) => {
+export const InteractiveGame = ({ gameId, gameTitle, gameType, onBack, onComplete, onNextGame }: InteractiveGameProps) => {
   const [score, setScore] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [isListening, setIsListening] = useState(false);
@@ -70,6 +71,13 @@ export const InteractiveGame = ({ gameId, gameTitle, gameType, onBack, onComplet
           title: "Great pronunciation! 🎤",
           description: "You earned 15 points!",
         });
+        
+        // Auto-progress to next word after successful pronunciation
+        if (currentQuestion < vocabularyWords.length - 1) {
+          setTimeout(() => setCurrentQuestion(currentQuestion + 1), 1500);
+        } else {
+          setTimeout(() => completeGame(), 1500);
+        }
       } else {
         toast({
           title: "Good try! 🔄",
@@ -103,6 +111,14 @@ export const InteractiveGame = ({ gameId, gameTitle, gameType, onBack, onComplet
     setGameCompleted(false);
   };
 
+  const handleNextGame = () => {
+    if (onNextGame) {
+      onNextGame();
+    } else {
+      onBack();
+    }
+  };
+
   if (gameCompleted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-100 via-emerald-50 to-green-100 p-4">
@@ -128,6 +144,12 @@ export const InteractiveGame = ({ gameId, gameTitle, gameType, onBack, onComplet
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Play Again
                 </Button>
+                {onNextGame && (
+                  <Button onClick={handleNextGame} className="bg-blue-500 hover:bg-blue-600">
+                    <ArrowRight className="w-4 h-4 mr-2" />
+                    Next Game
+                  </Button>
+                )}
                 <Button onClick={onBack} className="bg-green-500 hover:bg-green-600">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Games

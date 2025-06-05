@@ -16,20 +16,23 @@ interface GameCenterProps {
 export const GameCenter = ({ profile, onBack, onGameStart }: GameCenterProps) => {
   const { toast } = useToast();
   const [downloadedContent] = useState(JSON.parse(localStorage.getItem('downloadedContent') || '[]'));
+  const [currentGameIndex, setCurrentGameIndex] = useState(0);
 
   const storyBasedGames = [
     { id: 'sg1', title: 'Lion Story Game', linkedStory: 'The Lion and the Mouse', completed: true, locked: false, image: '🦁', type: 'story' as const },
-    { id: 'sg2', title: 'Elephant Memory', linkedStory: 'The Wise Elephant', completed: false, locked: true, image: '🐘', type: 'story' as const },
-    { id: 'sg3', title: 'Butterfly Dance', linkedStory: 'The Dancing Butterfly', completed: false, locked: true, image: '🦋', type: 'story' as const },
+    { id: 'sg2', title: 'Elephant Memory', linkedStory: 'The Wise Elephant', completed: false, locked: false, image: '🐘', type: 'story' as const },
+    { id: 'sg3', title: 'Butterfly Dance', linkedStory: 'The Dancing Butterfly', completed: false, locked: false, image: '🦋', type: 'story' as const },
   ];
 
   const learningGames = [
-    { id: 'lg1', title: 'Word Match Safari', type: 'vocabulary' as const, locked: profile.plan === 'free', image: '🎯', gameType: 'vocabulary' as const },
+    { id: 'lg1', title: 'Word Match Safari', type: 'vocabulary' as const, locked: false, image: '🎯', gameType: 'vocabulary' as const },
     { id: 'lg2', title: 'Sentence Builder', type: 'grammar', locked: profile.plan === 'free', image: '🧩', gameType: 'sentence-builder' as const },
-    { id: 'lg3', title: 'Sound Explorer', type: 'pronunciation', locked: profile.plan === 'free', image: '🔊', gameType: 'pronunciation' as const },
+    { id: 'lg3', title: 'Sound Explorer', type: 'pronunciation', locked: false, image: '🔊', gameType: 'pronunciation' as const },
     { id: 'lg4', title: 'Animal Friends Quiz', type: 'vocabulary', locked: false, image: '🦓', gameType: 'vocabulary' as const },
     { id: 'lg5', title: 'Color Learning Game', type: 'vocabulary', locked: profile.plan === 'free', image: '🌈', gameType: 'vocabulary' as const },
   ];
+
+  const allGames = [...storyBasedGames, ...learningGames];
 
   const handleGameTap = (gameId: string, locked: boolean, gameTitle?: string, gameType?: 'vocabulary' | 'story' | 'pronunciation' | 'sentence-builder') => {
     if (locked) {
@@ -53,12 +56,39 @@ export const GameCenter = ({ profile, onBack, onGameStart }: GameCenterProps) =>
       return;
     }
 
+    // Find the game index for progression
+    const gameIndex = allGames.findIndex(game => game.id === gameId);
+    if (gameIndex !== -1) {
+      setCurrentGameIndex(gameIndex);
+    }
+
     if (onGameStart && gameTitle && gameType) {
       onGameStart(gameId, gameTitle, gameType);
     } else {
       toast({
         title: "Starting Game! 🎮",
         description: "Get ready for some fun learning!",
+      });
+    }
+  };
+
+  const handleNextGame = () => {
+    const nextIndex = (currentGameIndex + 1) % allGames.length;
+    const nextGame = allGames[nextIndex];
+    
+    if (!nextGame.locked) {
+      setCurrentGameIndex(nextIndex);
+      if (onGameStart) {
+        onGameStart(nextGame.id, nextGame.title, nextGame.type);
+      }
+      toast({
+        title: "Next Game! 🎮",
+        description: `Starting ${nextGame.title}`,
+      });
+    } else {
+      toast({
+        title: "Game Locked 🔒",
+        description: "Ask your parent to unlock more games!",
       });
     }
   };

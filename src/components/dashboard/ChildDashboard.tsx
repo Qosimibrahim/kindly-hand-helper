@@ -11,6 +11,7 @@ import { ContentCard } from '../learning/ContentCard';
 import { GameCenter } from '../learning/GameCenter';
 import { RewardsScreen } from '../learning/RewardsScreen';
 import { InteractiveGame } from '../learning/InteractiveGame';
+import { SpeakingPractice } from '../learning/SpeakingPractice';
 
 interface ChildProfile {
   id: string;
@@ -49,7 +50,7 @@ const getLanguageFlag = (languageId: string) => {
 
 export const ChildDashboard = ({ profile, onSwitchProfile, onLogout }: ChildDashboardProps) => {
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [currentView, setCurrentView] = useState<'dashboard' | 'games' | 'rewards' | 'interactive-game'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'games' | 'rewards' | 'interactive-game' | 'speaking-practice'>('dashboard');
   const [activeGame, setActiveGame] = useState<{id: string, title: string, type: 'vocabulary' | 'story' | 'pronunciation' | 'sentence-builder'} | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [downloadedContent, setDownloadedContent] = useState<string[]>([]);
@@ -104,6 +105,15 @@ export const ChildDashboard = ({ profile, onSwitchProfile, onLogout }: ChildDash
     localStorage.setItem('childProfiles', JSON.stringify(updatedProfiles));
   };
 
+  const handleNextGame = () => {
+    // Logic to determine next game would go here
+    toast({
+      title: "Next Game! 🎮",
+      description: "Loading next adventure...",
+    });
+    setCurrentView('games');
+  };
+
   // Show different views based on currentView state
   if (currentView === 'games') {
     return <GameCenter profile={currentProfile} onBack={() => setCurrentView('dashboard')} onGameStart={handleGameStart} />;
@@ -111,6 +121,10 @@ export const ChildDashboard = ({ profile, onSwitchProfile, onLogout }: ChildDash
 
   if (currentView === 'rewards') {
     return <RewardsScreen profile={currentProfile} onBack={() => setCurrentView('dashboard')} />;
+  }
+
+  if (currentView === 'speaking-practice') {
+    return <SpeakingPractice profile={currentProfile} onBack={() => setCurrentView('dashboard')} />;
   }
 
   if (currentView === 'interactive-game' && activeGame) {
@@ -121,6 +135,7 @@ export const ChildDashboard = ({ profile, onSwitchProfile, onLogout }: ChildDash
         gameType={activeGame.type}
         onBack={() => setCurrentView('dashboard')}
         onComplete={handleGameComplete}
+        onNextGame={handleNextGame}
       />
     );
   }
@@ -163,15 +178,7 @@ export const ChildDashboard = ({ profile, onSwitchProfile, onLogout }: ChildDash
   };
 
   const handleVocabularyPractice = () => {
-    if (!isOnline) {
-      toast({
-        title: "Voice Practice Needs Internet 🌐",
-        description: "Voice practice is only available when connected to the internet.",
-      });
-      return;
-    }
-    
-    handleGameStart('vocab-practice', 'Vocabulary Practice', 'pronunciation');
+    setCurrentView('speaking-practice');
   };
 
   return (
@@ -289,28 +296,16 @@ export const ChildDashboard = ({ profile, onSwitchProfile, onLogout }: ChildDash
         {/* Secondary Activities */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Practice Speaking */}
-          <Card className="hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+          <Card className="hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 cursor-pointer">
             <CardContent className="p-6 text-center">
-              <div className="relative">
-                <Mic className={`w-12 h-12 mx-auto mb-4 ${isOnline ? 'text-green-600' : 'text-gray-400'}`} />
-                {!isOnline && (
-                  <WifiOff className="w-6 h-6 text-red-500 absolute -top-1 -right-1" />
-                )}
-              </div>
+              <Mic className="w-12 h-12 text-green-600 mx-auto mb-4" />
               <h3 className="text-lg font-bold text-green-900 mb-2">Practice Speaking</h3>
-              <p className={`mb-4 ${isOnline ? 'text-green-700' : 'text-gray-600'}`}>
-                {isOnline ? 'Learn new words and practice pronunciation' : 'Voice practice needs internet'}
-              </p>
+              <p className="text-green-700 mb-4">Learn new words and practice pronunciation daily</p>
               <Button 
-                className={`w-full ${
-                  isOnline 
-                    ? 'bg-green-500 hover:bg-green-600 text-white' 
-                    : 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                }`}
+                className="w-full bg-green-500 hover:bg-green-600 text-white"
                 onClick={handleVocabularyPractice}
-                disabled={!isOnline}
               >
-                {isOnline ? 'Start Practice Session' : 'Needs Internet Connection'}
+                Start Daily Practice
               </Button>
             </CardContent>
           </Card>

@@ -61,49 +61,19 @@ const Index = () => {
       // Check if there's an active child profile
       if (activeProfile) {
         const profile = JSON.parse(activeProfile);
-        const enhancedProfile = {
-          ...profile,
-          stars: profile.stars || 15,
-          badges: profile.badges || ['first-story', 'word-master'],
-          wordsLearned: profile.wordsLearned || 8,
-          storiesCompleted: profile.storiesCompleted || 2,
-          plan: profile.plan || 'free',
-        };
-        setActiveChildProfile(enhancedProfile);
+        setActiveChildProfile(profile);
         setCurrentMode('child-dashboard');
       } else if (linkedChildProfile) {
-        // Child device is linked, create/load child profiles
+        // Child device is linked, check for child profiles
         const childProfiles = JSON.parse(localStorage.getItem('childProfiles') || '[]');
         if (childProfiles.length > 0) {
-          const firstProfile = {
-            ...childProfiles[0],
-            stars: childProfiles[0].stars || 15,
-            badges: childProfiles[0].badges || ['first-story', 'word-master'],
-            wordsLearned: childProfiles[0].wordsLearned || 8,
-            storiesCompleted: childProfiles[0].storiesCompleted || 2,
-            plan: childProfiles[0].plan || 'free',
-          };
+          const firstProfile = childProfiles[0];
           setActiveChildProfile(firstProfile);
           localStorage.setItem('activeChildProfile', JSON.stringify(firstProfile));
           setCurrentMode('child-dashboard');
         } else {
-          // Create a default child profile for linked device
-          const defaultProfile: ChildProfile = {
-            id: 'child1',
-            name: 'Young Learner',
-            ageGroup: '5-7',
-            avatar: 'avatar1',
-            language: 'hausa',
-            stars: 15,
-            badges: ['first-story', 'word-master'],
-            wordsLearned: 8,
-            storiesCompleted: 2,
-            plan: 'free',
-          };
-          setActiveChildProfile(defaultProfile);
-          localStorage.setItem('activeChildProfile', JSON.stringify(defaultProfile));
-          localStorage.setItem('childProfiles', JSON.stringify([defaultProfile]));
-          setCurrentMode('child-dashboard');
+          // No profiles exist, go to user type selection
+          setCurrentMode('user-type');
         }
       } else if (parentSession && onboardingComplete) {
         setCurrentMode('parent-dashboard');
@@ -140,38 +110,20 @@ const Index = () => {
   };
 
   const handleChildLinkingComplete = () => {
-    // After linking, load or create child profile
+    // After linking, check for child profiles
     const childProfiles = JSON.parse(localStorage.getItem('childProfiles') || '[]');
     if (childProfiles.length > 0) {
-      const firstProfile = {
-        ...childProfiles[0],
-        stars: childProfiles[0].stars || 15,
-        badges: childProfiles[0].badges || ['first-story', 'word-master'],
-        wordsLearned: childProfiles[0].wordsLearned || 8,
-        storiesCompleted: childProfiles[0].storiesCompleted || 2,
-        plan: childProfiles[0].plan || 'free',
-      };
+      const firstProfile = childProfiles[0];
       setActiveChildProfile(firstProfile);
       localStorage.setItem('activeChildProfile', JSON.stringify(firstProfile));
       setCurrentMode('child-dashboard');
     } else {
-      // Create a default child profile
-      const defaultProfile: ChildProfile = {
-        id: 'child1',
-        name: 'Young Learner',
-        ageGroup: '5-7',
-        avatar: 'avatar1',
-        language: 'hausa',
-        stars: 15,
-        badges: ['first-story', 'word-master'],
-        wordsLearned: 8,
-        storiesCompleted: 2,
-        plan: 'free',
-      };
-      setActiveChildProfile(defaultProfile);
-      localStorage.setItem('activeChildProfile', JSON.stringify(defaultProfile));
-      localStorage.setItem('childProfiles', JSON.stringify([defaultProfile]));
-      setCurrentMode('child-dashboard');
+      // No profiles available, go back to user type selection
+      toast({
+        title: "No Child Profiles Found",
+        description: "Ask your parent to create a profile for you first.",
+      });
+      setCurrentMode('user-type');
     }
   };
 
