@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { UserTypeSelection } from '@/components/onboarding/UserTypeSelection';
 import { ParentOnboarding } from '@/components/onboarding/ParentOnboarding';
@@ -31,7 +32,6 @@ const Index = () => {
   useEffect(() => {
     // Handle online/offline sync
     const handleOnline = () => {
-      // Sync progress when coming back online
       const offlineProgress = localStorage.getItem('offlineProgress');
       if (offlineProgress) {
         toast({
@@ -39,7 +39,6 @@ const Index = () => {
           description: "Updating your achievements and progress",
         });
         
-        // Simulate sync process
         setTimeout(() => {
           localStorage.removeItem('offlineProgress');
           toast({
@@ -62,18 +61,18 @@ const Index = () => {
       // Check if there's an active child profile
       if (activeProfile) {
         const profile = JSON.parse(activeProfile);
-        // Add missing properties with defaults for existing profiles
         const enhancedProfile = {
           ...profile,
           stars: profile.stars || 15,
           badges: profile.badges || ['first-story', 'word-master'],
           wordsLearned: profile.wordsLearned || 8,
           storiesCompleted: profile.storiesCompleted || 2,
+          plan: profile.plan || 'free',
         };
         setActiveChildProfile(enhancedProfile);
         setCurrentMode('child-dashboard');
       } else if (linkedChildProfile) {
-        // Child device is linked, but no active profile - show child dashboard with first profile
+        // Child device is linked, create/load child profiles
         const childProfiles = JSON.parse(localStorage.getItem('childProfiles') || '[]');
         if (childProfiles.length > 0) {
           const firstProfile = {
@@ -82,16 +81,33 @@ const Index = () => {
             badges: childProfiles[0].badges || ['first-story', 'word-master'],
             wordsLearned: childProfiles[0].wordsLearned || 8,
             storiesCompleted: childProfiles[0].storiesCompleted || 2,
+            plan: childProfiles[0].plan || 'free',
           };
           setActiveChildProfile(firstProfile);
+          localStorage.setItem('activeChildProfile', JSON.stringify(firstProfile));
           setCurrentMode('child-dashboard');
         } else {
-          setCurrentMode('child-linking');
+          // Create a default child profile for linked device
+          const defaultProfile: ChildProfile = {
+            id: 'child1',
+            name: 'Young Learner',
+            ageGroup: '5-7',
+            avatar: 'avatar1',
+            language: 'hausa',
+            stars: 15,
+            badges: ['first-story', 'word-master'],
+            wordsLearned: 8,
+            storiesCompleted: 2,
+            plan: 'free',
+          };
+          setActiveChildProfile(defaultProfile);
+          localStorage.setItem('activeChildProfile', JSON.stringify(defaultProfile));
+          localStorage.setItem('childProfiles', JSON.stringify([defaultProfile]));
+          setCurrentMode('child-dashboard');
         }
       } else if (parentSession && onboardingComplete) {
         setCurrentMode('parent-dashboard');
       } else if (onboardingProgress) {
-        // Resume parent onboarding
         const progress = JSON.parse(onboardingProgress);
         if (progress.step === 'otp' || progress.step === 'pin-confirm' || progress.step === 'plan-selected') {
           setCurrentMode('parent-onboarding');
@@ -124,7 +140,7 @@ const Index = () => {
   };
 
   const handleChildLinkingComplete = () => {
-    // After linking, load first available child profile
+    // After linking, load or create child profile
     const childProfiles = JSON.parse(localStorage.getItem('childProfiles') || '[]');
     if (childProfiles.length > 0) {
       const firstProfile = {
@@ -133,12 +149,29 @@ const Index = () => {
         badges: childProfiles[0].badges || ['first-story', 'word-master'],
         wordsLearned: childProfiles[0].wordsLearned || 8,
         storiesCompleted: childProfiles[0].storiesCompleted || 2,
+        plan: childProfiles[0].plan || 'free',
       };
       setActiveChildProfile(firstProfile);
       localStorage.setItem('activeChildProfile', JSON.stringify(firstProfile));
       setCurrentMode('child-dashboard');
     } else {
-      setCurrentMode('child-linking');
+      // Create a default child profile
+      const defaultProfile: ChildProfile = {
+        id: 'child1',
+        name: 'Young Learner',
+        ageGroup: '5-7',
+        avatar: 'avatar1',
+        language: 'hausa',
+        stars: 15,
+        badges: ['first-story', 'word-master'],
+        wordsLearned: 8,
+        storiesCompleted: 2,
+        plan: 'free',
+      };
+      setActiveChildProfile(defaultProfile);
+      localStorage.setItem('activeChildProfile', JSON.stringify(defaultProfile));
+      localStorage.setItem('childProfiles', JSON.stringify([defaultProfile]));
+      setCurrentMode('child-dashboard');
     }
   };
 
@@ -148,6 +181,7 @@ const Index = () => {
 
   const handleProfileSelected = (profile: ChildProfile) => {
     setActiveChildProfile(profile);
+    localStorage.setItem('activeChildProfile', JSON.stringify(profile));
     setCurrentMode('child-dashboard');
   };
 

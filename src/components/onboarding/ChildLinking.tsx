@@ -25,7 +25,6 @@ export const ChildLinking = ({ onComplete }: ChildLinkingProps) => {
     // Simulate QR code scanning
     setTimeout(() => {
       setIsScanning(false);
-      // Mock successful scan
       const mockCode = 'PARENT123';
       setLinkingCode(mockCode);
       toast({
@@ -51,6 +50,41 @@ export const ChildLinking = ({ onComplete }: ChildLinkingProps) => {
         linkingCode: linkingCode.toUpperCase(),
         linkedAt: new Date().toISOString(),
       }));
+      
+      // Ensure there are child profiles available
+      const existingProfiles = localStorage.getItem('childProfiles');
+      if (!existingProfiles) {
+        // Create sample child profiles
+        const sampleProfiles = [
+          {
+            id: 'child1',
+            name: 'Ayo',
+            ageGroup: '5-7',
+            avatar: 'avatar1',
+            language: 'hausa',
+            stars: 15,
+            badges: ['first-story', 'word-master'],
+            wordsLearned: 8,
+            storiesCompleted: 2,
+            plan: 'free',
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: 'child2',
+            name: 'Kemi',
+            ageGroup: '8-10',
+            avatar: 'avatar3',
+            language: 'yoruba',
+            stars: 22,
+            badges: ['first-story', 'word-master', 'streak-7'],
+            wordsLearned: 15,
+            storiesCompleted: 4,
+            plan: 'free',
+            createdAt: new Date().toISOString(),
+          }
+        ];
+        localStorage.setItem('childProfiles', JSON.stringify(sampleProfiles));
+      }
       
       toast({
         title: "Successfully Linked! 🎉",

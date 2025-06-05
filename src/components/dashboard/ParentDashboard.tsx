@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserPlus, Settings, LogOut, Users, Crown, AlertTriangle, QrCode, Copy, Smartphone, Download, Shield, Globe, Bell } from 'lucide-react';
@@ -18,6 +18,10 @@ interface ChildProfile {
   language: string;
   createdAt: string;
   plan: string;
+  stars?: number;
+  badges?: string[];
+  wordsLearned?: number;
+  storiesCompleted?: number;
 }
 
 const getMaxProfiles = (plan: string) => {
@@ -74,14 +78,58 @@ export const ParentDashboard = () => {
 
   useEffect(() => {
     const parentSession = localStorage.getItem('parentSession');
-    const profiles = localStorage.getItem('childProfiles');
+    let profiles = localStorage.getItem('childProfiles');
     
     if (parentSession) {
       setParentData(JSON.parse(parentSession));
     }
     
     if (profiles) {
-      setChildProfiles(JSON.parse(profiles));
+      const parsedProfiles = JSON.parse(profiles);
+      // Ensure child profiles have all required progress data
+      const enhancedProfiles = parsedProfiles.map((profile: any) => ({
+        ...profile,
+        stars: profile.stars || 15,
+        badges: profile.badges || ['first-story', 'word-master'],
+        wordsLearned: profile.wordsLearned || 8,
+        storiesCompleted: profile.storiesCompleted || 2,
+        plan: profile.plan || 'free',
+      }));
+      setChildProfiles(enhancedProfiles);
+      // Update localStorage with enhanced data
+      localStorage.setItem('childProfiles', JSON.stringify(enhancedProfiles));
+    } else {
+      // Create sample child profiles if none exist
+      const sampleProfiles = [
+        {
+          id: 'child1',
+          name: 'Ayo',
+          ageGroup: '5-7',
+          avatar: 'avatar1',
+          language: 'hausa',
+          stars: 15,
+          badges: ['first-story', 'word-master'],
+          wordsLearned: 8,
+          storiesCompleted: 2,
+          plan: 'free',
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 'child2',
+          name: 'Kemi',
+          ageGroup: '8-10',
+          avatar: 'avatar3',
+          language: 'yoruba',
+          stars: 22,
+          badges: ['first-story', 'word-master', 'streak-7'],
+          wordsLearned: 15,
+          storiesCompleted: 4,
+          plan: 'free',
+          createdAt: new Date().toISOString(),
+        }
+      ];
+      setChildProfiles(sampleProfiles);
+      localStorage.setItem('childProfiles', JSON.stringify(sampleProfiles));
     }
   }, []);
 
@@ -95,7 +143,6 @@ export const ParentDashboard = () => {
       return;
     }
 
-    // In a real app, this would navigate to add child flow
     toast({
       title: "Add Child Profile",
       description: "This would navigate to the add child profile flow",
@@ -120,6 +167,8 @@ export const ParentDashboard = () => {
     localStorage.removeItem('childProfiles');
     localStorage.removeItem('onboardingProgress');
     localStorage.removeItem('onboardingComplete');
+    localStorage.removeItem('activeChildProfile');
+    localStorage.removeItem('linkedChildProfile');
     window.location.reload();
   };
 
@@ -332,7 +381,7 @@ export const ParentDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Progress Tracker - NEW */}
+        {/* Progress Tracker */}
         {childProfiles.length > 0 && (
           <div className="mb-8">
             <ProgressTracker childProfiles={childProfiles} />
@@ -371,8 +420,18 @@ export const ParentDashboard = () => {
                     </span>
                     <span className="font-bold text-orange-900 capitalize">{profile.language}</span>
                   </div>
+                  <div className="flex justify-center gap-4 text-sm">
+                    <div className="text-center">
+                      <p className="font-bold text-orange-900">{profile.stars || 0}</p>
+                      <p className="text-orange-600">Stars</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="font-bold text-orange-900">{profile.storiesCompleted || 0}</p>
+                      <p className="text-orange-600">Stories</p>
+                    </div>
+                  </div>
                   <Badge variant="outline" className="border-orange-300 text-orange-700">
-                    {profile.plan.charAt(0).toUpperCase() + profile.plan.slice(1)} Plan
+                    {profile.plan?.charAt(0).toUpperCase() + profile.plan?.slice(1) || 'Free'} Plan
                   </Badge>
                   <Button variant="outline" size="sm" className="w-full border-orange-300 text-orange-700 hover:bg-orange-50">
                     View Progress
@@ -419,6 +478,12 @@ export const ParentDashboard = () => {
           )}
         </div>
 
+        {/* Download Manager Modal */}
+        <DownloadManager 
+          open={showDownloadModal} 
+          onOpenChange={setShowDownloadModal} 
+        />
+
         {/* Upgrade Modal */}
         <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
           <DialogContent className="max-w-md">
@@ -454,6 +519,8 @@ export const ParentDashboard = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Settings and Device Modals - keeping existing code */}
       </div>
     </div>
   );
