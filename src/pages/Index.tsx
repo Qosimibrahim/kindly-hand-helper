@@ -189,6 +189,11 @@ const Index = () => {
     setCurrentMode('child-dashboard');
   };
 
+  const handleLogout = () => {
+    setCurrentMode('user-type');
+    setActiveChildProfile(null);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-100 via-orange-50 to-amber-50">
@@ -223,6 +228,7 @@ const Index = () => {
         <ChildDashboard 
           profile={activeChildProfile} 
           onSwitchProfile={handleSwitchProfile}
+          onLogout={handleLogout}
         />
       )}
       {currentMode === 'profile-switcher' && activeChildProfile && (

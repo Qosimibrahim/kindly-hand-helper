@@ -10,27 +10,28 @@ import { ContentCard } from './ContentCard';
 interface GameCenterProps {
   profile: any;
   onBack: () => void;
+  onGameStart?: (gameId: string, gameTitle: string, gameType: 'vocabulary' | 'story' | 'pronunciation' | 'sentence-builder') => void;
 }
 
-export const GameCenter = ({ profile, onBack }: GameCenterProps) => {
+export const GameCenter = ({ profile, onBack, onGameStart }: GameCenterProps) => {
   const { toast } = useToast();
   const [downloadedContent] = useState(JSON.parse(localStorage.getItem('downloadedContent') || '[]'));
 
   const storyBasedGames = [
-    { id: 'sg1', title: 'Lion Story Game', linkedStory: 'The Lion and the Mouse', completed: true, locked: false, image: '🦁' },
-    { id: 'sg2', title: 'Elephant Memory', linkedStory: 'The Wise Elephant', completed: false, locked: true, image: '🐘' },
-    { id: 'sg3', title: 'Butterfly Dance', linkedStory: 'The Dancing Butterfly', completed: false, locked: true, image: '🦋' },
+    { id: 'sg1', title: 'Lion Story Game', linkedStory: 'The Lion and the Mouse', completed: true, locked: false, image: '🦁', type: 'story' as const },
+    { id: 'sg2', title: 'Elephant Memory', linkedStory: 'The Wise Elephant', completed: false, locked: true, image: '🐘', type: 'story' as const },
+    { id: 'sg3', title: 'Butterfly Dance', linkedStory: 'The Dancing Butterfly', completed: false, locked: true, image: '🦋', type: 'story' as const },
   ];
 
   const learningGames = [
-    { id: 'lg1', title: 'Word Match Safari', type: 'vocabulary', locked: profile.plan === 'free', image: '🎯' },
-    { id: 'lg2', title: 'Sentence Builder', type: 'grammar', locked: profile.plan === 'free', image: '🧩' },
-    { id: 'lg3', title: 'Sound Explorer', type: 'pronunciation', locked: profile.plan === 'free', image: '🔊' },
-    { id: 'lg4', title: 'Animal Friends Quiz', type: 'vocabulary', locked: false, image: '🦓' },
-    { id: 'lg5', title: 'Color Learning Game', type: 'vocabulary', locked: profile.plan === 'free', image: '🌈' },
+    { id: 'lg1', title: 'Word Match Safari', type: 'vocabulary' as const, locked: profile.plan === 'free', image: '🎯', gameType: 'vocabulary' as const },
+    { id: 'lg2', title: 'Sentence Builder', type: 'grammar', locked: profile.plan === 'free', image: '🧩', gameType: 'sentence-builder' as const },
+    { id: 'lg3', title: 'Sound Explorer', type: 'pronunciation', locked: profile.plan === 'free', image: '🔊', gameType: 'pronunciation' as const },
+    { id: 'lg4', title: 'Animal Friends Quiz', type: 'vocabulary', locked: false, image: '🦓', gameType: 'vocabulary' as const },
+    { id: 'lg5', title: 'Color Learning Game', type: 'vocabulary', locked: profile.plan === 'free', image: '🌈', gameType: 'vocabulary' as const },
   ];
 
-  const handleGameTap = (gameId: string, locked: boolean) => {
+  const handleGameTap = (gameId: string, locked: boolean, gameTitle?: string, gameType?: 'vocabulary' | 'story' | 'pronunciation' | 'sentence-builder') => {
     if (locked) {
       toast({
         title: "Oops! This game isn't available right now 🔒",
@@ -52,10 +53,14 @@ export const GameCenter = ({ profile, onBack }: GameCenterProps) => {
       return;
     }
 
-    toast({
-      title: "Starting Game! 🎮",
-      description: "Get ready for some fun learning!",
-    });
+    if (onGameStart && gameTitle && gameType) {
+      onGameStart(gameId, gameTitle, gameType);
+    } else {
+      toast({
+        title: "Starting Game! 🎮",
+        description: "Get ready for some fun learning!",
+      });
+    }
   };
 
   return (
@@ -95,7 +100,7 @@ export const GameCenter = ({ profile, onBack }: GameCenterProps) => {
                 className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
                   !game.locked ? 'hover:scale-105 border-green-200' : 'opacity-75 border-gray-200'
                 }`}
-                onClick={() => handleGameTap(game.id, game.locked)}
+                onClick={() => handleGameTap(game.id, game.locked, game.title, game.type)}
               >
                 <CardHeader className="text-center pb-3">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
@@ -138,17 +143,18 @@ export const GameCenter = ({ profile, onBack }: GameCenterProps) => {
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {learningGames.map((game) => (
-              <ContentCard
-                key={game.id}
-                id={game.id}
-                title={game.title}
-                type="game"
-                image={game.image}
-                locked={game.locked}
-                downloaded={downloadedContent.includes(game.id)}
-                onTap={(id) => handleGameTap(id, game.locked)}
-                plan={profile.plan}
-              />
+              <div key={game.id} onClick={() => handleGameTap(game.id, game.locked, game.title, game.gameType)}>
+                <ContentCard
+                  id={game.id}
+                  title={game.title}
+                  type="game"
+                  image={game.image}
+                  locked={game.locked}
+                  downloaded={downloadedContent.includes(game.id)}
+                  onTap={() => {}} // handled by parent div
+                  plan={profile.plan}
+                />
+              </div>
             ))}
           </CardContent>
         </Card>

@@ -1,14 +1,16 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Star, BookOpen, Gamepad2, Award, Mic, User, Lock, ArrowLeft, WifiOff, Download } from 'lucide-react';
+import { Star, BookOpen, Gamepad2, Award, Mic, User, Lock, ArrowLeft, WifiOff, Download, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { OfflineIndicator } from '../common/OfflineIndicator';
 import { ContentCard } from '../learning/ContentCard';
 import { GameCenter } from '../learning/GameCenter';
 import { RewardsScreen } from '../learning/RewardsScreen';
+import { InteractiveGame } from '../learning/InteractiveGame';
 
 interface ChildProfile {
   id: string;
@@ -26,6 +28,7 @@ interface ChildProfile {
 interface ChildDashboardProps {
   profile: ChildProfile;
   onSwitchProfile: () => void;
+  onLogout?: () => void;
 }
 
 const getAvatarEmoji = (avatarId: string) => {
@@ -44,11 +47,13 @@ const getLanguageFlag = (languageId: string) => {
   return flags[languageId] || '🌍';
 };
 
-export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps) => {
+export const ChildDashboard = ({ profile, onSwitchProfile, onLogout }: ChildDashboardProps) => {
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [currentView, setCurrentView] = useState<'dashboard' | 'games' | 'rewards'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'games' | 'rewards' | 'interactive-game'>('dashboard');
+  const [activeGame, setActiveGame] = useState<{id: string, title: string, type: 'vocabulary' | 'story' | 'pronunciation' | 'sentence-builder'} | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [downloadedContent, setDownloadedContent] = useState<string[]>([]);
+  const [currentProfile, setCurrentProfile] = useState(profile);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -68,13 +73,56 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
     };
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('activeChildProfile');
+    localStorage.removeItem('linkedChildProfile');
+    if (onLogout) {
+      onLogout();
+    } else {
+      window.location.reload();
+    }
+  };
+
+  const handleGameStart = (gameId: string, gameTitle: string, gameType: 'vocabulary' | 'story' | 'pronunciation' | 'sentence-builder') => {
+    setActiveGame({ id: gameId, title: gameTitle, type: gameType });
+    setCurrentView('interactive-game');
+  };
+
+  const handleGameComplete = (starsEarned: number) => {
+    const updatedProfile = {
+      ...currentProfile,
+      stars: currentProfile.stars + starsEarned
+    };
+    setCurrentProfile(updatedProfile);
+    localStorage.setItem('activeChildProfile', JSON.stringify(updatedProfile));
+    
+    // Update profile in childProfiles array
+    const childProfiles = JSON.parse(localStorage.getItem('childProfiles') || '[]');
+    const updatedProfiles = childProfiles.map((p: ChildProfile) => 
+      p.id === updatedProfile.id ? updatedProfile : p
+    );
+    localStorage.setItem('childProfiles', JSON.stringify(updatedProfiles));
+  };
+
   // Show different views based on currentView state
   if (currentView === 'games') {
-    return <GameCenter profile={profile} onBack={() => setCurrentView('dashboard')} />;
+    return <GameCenter profile={currentProfile} onBack={() => setCurrentView('dashboard')} onGameStart={handleGameStart} />;
   }
 
   if (currentView === 'rewards') {
-    return <RewardsScreen profile={profile} onBack={() => setCurrentView('dashboard')} />;
+    return <RewardsScreen profile={currentProfile} onBack={() => setCurrentView('dashboard')} />;
+  }
+
+  if (currentView === 'interactive-game' && activeGame) {
+    return (
+      <InteractiveGame
+        gameId={activeGame.id}
+        gameTitle={activeGame.title}
+        gameType={activeGame.type}
+        onBack={() => setCurrentView('dashboard')}
+        onComplete={handleGameComplete}
+      />
+    );
   }
 
   const mockStories = [
@@ -91,6 +139,12 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
         title: "Need Internet or Download 📶",
         description: "Ask your parent to download this for offline use!",
       });
+      return;
+    }
+    
+    // Check if it's a story that should start an interactive game
+    if (activityId === '1') {
+      handleGameStart('story-lion', 'The Lion and the Mouse', 'story');
       return;
     }
     
@@ -117,10 +171,7 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
       return;
     }
     
-    toast({
-      title: "Starting Voice Practice! 🎤",
-      description: "Get ready to practice your pronunciation!",
-    });
+    handleGameStart('vocab-practice', 'Vocabulary Practice', 'pronunciation');
   };
 
   return (
@@ -136,7 +187,7 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
               alt="Kidandu Logo" 
               className="h-8 w-auto"
             />
-            <h1 className="text-2xl font-bold text-orange-900">Hi, {profile.name}! 👋</h1>
+            <h1 className="text-2xl font-bold text-orange-900">Hi, {currentProfile.name}! 👋</h1>
           </div>
           
           <Button
@@ -144,8 +195,8 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
             onClick={() => setShowProfileModal(true)}
             className="flex items-center gap-2 bg-white/50 hover:bg-white/70 rounded-full p-3 shadow-lg"
           >
-            <span className="text-2xl">{getAvatarEmoji(profile.avatar)}</span>
-            <span className="font-medium text-orange-900">{profile.name}</span>
+            <span className="text-2xl">{getAvatarEmoji(currentProfile.avatar)}</span>
+            <span className="font-medium text-orange-900">{currentProfile.name}</span>
           </Button>
         </div>
 
@@ -156,12 +207,12 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
               <div className="flex items-center gap-3">
                 <Star className="w-8 h-8 text-yellow-600 fill-yellow-400" />
                 <div>
-                  <p className="text-xl font-bold text-yellow-800">{profile.stars} Stars</p>
+                  <p className="text-xl font-bold text-yellow-800">{currentProfile.stars} Stars</p>
                   <p className="text-sm text-yellow-700">5 more to unlock new avatar item!</p>
                 </div>
               </div>
               <div className="w-24 h-3 bg-white/50 rounded-full overflow-hidden">
-                <div className="h-full bg-yellow-500 rounded-full" style={{ width: `${(profile.stars % 10) * 10}%` }}></div>
+                <div className="h-full bg-yellow-500 rounded-full" style={{ width: `${(currentProfile.stars % 10) * 10}%` }}></div>
               </div>
             </div>
           </CardContent>
@@ -187,7 +238,7 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
                 completed={story.completed}
                 downloaded={downloadedContent.includes(story.id)}
                 onTap={handleActivityTap}
-                plan={profile.plan}
+                plan={currentProfile.plan}
               />
             ))}
           </CardContent>
@@ -220,11 +271,11 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
               <h3 className="text-lg font-bold text-amber-900 mb-2">My Rewards</h3>
               <div className="flex justify-center gap-4 mb-4">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-amber-800">{profile.badges.length}</p>
+                  <p className="text-2xl font-bold text-amber-800">{currentProfile.badges.length}</p>
                   <p className="text-xs text-amber-600">Badges</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-amber-800">{profile.wordsLearned}</p>
+                  <p className="text-2xl font-bold text-amber-800">{currentProfile.wordsLearned}</p>
                   <p className="text-xs text-amber-600">Words</p>
                 </div>
               </div>
@@ -271,7 +322,7 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
               <h3 className="text-lg font-bold text-indigo-900 mb-2">Learning Progress</h3>
               <div className="flex justify-center gap-4 mb-4">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-indigo-800">{profile.storiesCompleted}</p>
+                  <p className="text-2xl font-bold text-indigo-800">{currentProfile.storiesCompleted}</p>
                   <p className="text-xs text-indigo-600">Stories</p>
                 </div>
                 <div className="text-center">
@@ -296,14 +347,14 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
             <DialogHeader>
               <DialogTitle className="text-center text-xl text-orange-900">
                 <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-4xl">{getAvatarEmoji(profile.avatar)}</span>
+                  <span className="text-4xl">{getAvatarEmoji(currentProfile.avatar)}</span>
                 </div>
-                {profile.name}
+                {currentProfile.name}
               </DialogTitle>
               <DialogDescription className="text-center space-y-2">
-                <p><strong>Age:</strong> {profile.ageGroup}</p>
-                <p><strong>Language:</strong> {getLanguageFlag(profile.language)} {profile.language.charAt(0).toUpperCase() + profile.language.slice(1)}</p>
-                <p><strong>Stars:</strong> ⭐ {profile.stars}</p>
+                <p><strong>Age:</strong> {currentProfile.ageGroup}</p>
+                <p><strong>Language:</strong> {getLanguageFlag(currentProfile.language)} {currentProfile.language.charAt(0).toUpperCase() + currentProfile.language.slice(1)}</p>
+                <p><strong>Stars:</strong> ⭐ {currentProfile.stars}</p>
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-3 pt-4">
@@ -313,6 +364,13 @@ export const ChildDashboard = ({ profile, onSwitchProfile }: ChildDashboardProps
               >
                 <User className="mr-2 h-4 w-4" />
                 Switch Profile
+              </Button>
+              <Button 
+                className="w-full h-12 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+                onClick={handleLogout}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
               </Button>
               <Button 
                 variant="outline" 
