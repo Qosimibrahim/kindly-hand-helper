@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,9 +18,9 @@ export const GameCenter = ({ profile, onBack, onGameStart }: GameCenterProps) =>
   const [currentGameIndex, setCurrentGameIndex] = useState(0);
 
   const storyBasedGames = [
-    { id: 'sg1', title: 'Lion Story Game', linkedStory: 'The Lion and the Mouse', completed: true, locked: false, image: '🦁', type: 'story' as const },
-    { id: 'sg2', title: 'Elephant Memory', linkedStory: 'The Wise Elephant', completed: false, locked: false, image: '🐘', type: 'story' as const },
-    { id: 'sg3', title: 'Butterfly Dance', linkedStory: 'The Dancing Butterfly', completed: false, locked: false, image: '🦋', type: 'story' as const },
+    { id: 'sg1', title: 'Lion Story Game', linkedStory: 'The Lion and the Mouse', completed: true, locked: false, image: '🦁', type: 'story' as const, gameType: 'story' as const },
+    { id: 'sg2', title: 'Elephant Memory', linkedStory: 'The Wise Elephant', completed: false, locked: false, image: '🐘', type: 'story' as const, gameType: 'story' as const },
+    { id: 'sg3', title: 'Butterfly Dance', linkedStory: 'The Dancing Butterfly', completed: false, locked: false, image: '🦋', type: 'story' as const, gameType: 'story' as const },
   ];
 
   const learningGames = [
@@ -79,7 +78,7 @@ export const GameCenter = ({ profile, onBack, onGameStart }: GameCenterProps) =>
     if (!nextGame.locked) {
       setCurrentGameIndex(nextIndex);
       if (onGameStart) {
-        onGameStart(nextGame.id, nextGame.title, nextGame.gameType || nextGame.type);
+        onGameStart(nextGame.id, nextGame.title, nextGame.gameType);
       }
       toast({
         title: "Next Game! 🎮",
@@ -130,7 +129,7 @@ export const GameCenter = ({ profile, onBack, onGameStart }: GameCenterProps) =>
                 className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
                   !game.locked ? 'hover:scale-105 border-green-200' : 'opacity-75 border-gray-200'
                 }`}
-                onClick={() => handleGameTap(game.id, game.locked, game.title, game.type)}
+                onClick={() => handleGameTap(game.id, game.locked, game.title, game.gameType)}
               >
                 <CardHeader className="text-center pb-3">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
