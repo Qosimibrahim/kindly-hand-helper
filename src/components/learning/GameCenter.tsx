@@ -26,10 +26,10 @@ export const GameCenter = ({ profile, onBack, onGameStart }: GameCenterProps) =>
 
   const learningGames = [
     { id: 'lg1', title: 'Word Match Safari', type: 'vocabulary' as const, locked: false, image: '🎯', gameType: 'vocabulary' as const },
-    { id: 'lg2', title: 'Sentence Builder', type: 'grammar', locked: profile.plan === 'free', image: '🧩', gameType: 'sentence-builder' as const },
-    { id: 'lg3', title: 'Sound Explorer', type: 'pronunciation', locked: false, image: '🔊', gameType: 'pronunciation' as const },
-    { id: 'lg4', title: 'Animal Friends Quiz', type: 'vocabulary', locked: false, image: '🦓', gameType: 'vocabulary' as const },
-    { id: 'lg5', title: 'Color Learning Game', type: 'vocabulary', locked: profile.plan === 'free', image: '🌈', gameType: 'vocabulary' as const },
+    { id: 'lg2', title: 'Sentence Builder', type: 'sentence-builder' as const, locked: profile.plan === 'free', image: '🧩', gameType: 'sentence-builder' as const },
+    { id: 'lg3', title: 'Sound Explorer', type: 'pronunciation' as const, locked: false, image: '🔊', gameType: 'pronunciation' as const },
+    { id: 'lg4', title: 'Animal Friends Quiz', type: 'vocabulary' as const, locked: false, image: '🦓', gameType: 'vocabulary' as const },
+    { id: 'lg5', title: 'Color Learning Game', type: 'vocabulary' as const, locked: profile.plan === 'free', image: '🌈', gameType: 'vocabulary' as const },
   ];
 
   const allGames = [...storyBasedGames, ...learningGames];
@@ -79,7 +79,7 @@ export const GameCenter = ({ profile, onBack, onGameStart }: GameCenterProps) =>
     if (!nextGame.locked) {
       setCurrentGameIndex(nextIndex);
       if (onGameStart) {
-        onGameStart(nextGame.id, nextGame.title, nextGame.type);
+        onGameStart(nextGame.id, nextGame.title, nextGame.gameType || nextGame.type);
       }
       toast({
         title: "Next Game! 🎮",
