@@ -29,12 +29,41 @@ export const InteractiveGame = ({ gameId, gameTitle, gameType, onBack, onComplet
     { word: 'House', hausa: 'Gida', image: '🏠' },
   ];
 
-  const storyContent = [
-    { text: "Once upon a time, there was a brave lion.", hausa: "Da zamanin da, akwai wani zakimai." },
-    { text: "The lion lived in a big forest.", hausa: "Zakin yana zaune a babban daji." },
-    { text: "Every day, he helped other animals.", hausa: "Kullum yana taimaka wa sauran dabbobi." },
-    { text: "The animals loved their kind lion king.", hausa: "Dabbobi sun so sarkinsu zakimai." },
-  ];
+  // Different stories based on gameId
+  const getStoryContent = (gameId: string) => {
+    switch (gameId) {
+      case 'story-lion':
+        return [
+          { text: "Once upon a time, there was a brave lion.", hausa: "Da zamanin da, akwai wani zakimai." },
+          { text: "The lion lived in a big forest.", hausa: "Zakin yana zaune a babban daji." },
+          { text: "Every day, he helped other animals.", hausa: "Kullum yana taimaka wa sauran dabbobi." },
+          { text: "The animals loved their kind lion king.", hausa: "Dabbobi sun so sarkinsu zakimai." },
+        ];
+      case 'story-elephant':
+        return [
+          { text: "In the heart of Africa lived a wise old elephant.", hausa: "A tsakiyar Afirka akwai wani tsohon giwa mai hikima." },
+          { text: "The elephant remembered where water could be found during dry seasons.", hausa: "Giwan yana tunawa da inda za'a sami ruwa a lokacin rani." },
+          { text: "All the animals came to him for advice and guidance.", hausa: "Dukan dabbobi suna zuwa gare shi don neman shawara da jagora." },
+          { text: "His wisdom saved the forest community many times.", hausa: "Hikimensa ya ceci al'ummar daji sau da yawa." },
+        ];
+      case 'story-butterfly':
+        return [
+          { text: "A beautiful butterfly lived in a colorful garden.", hausa: "Kyakkyawar malam buɗe ido tana zaune a lambu mai launi." },
+          { text: "She danced from flower to flower every morning.", hausa: "Kowace safiya tana rawa daga fure zuwa fure." },
+          { text: "The other insects watched her graceful movements.", hausa: "Sauran kwari suna kallon motsin ta na kyau." },
+          { text: "She taught them that beauty comes from being kind.", hausa: "Ta koya musu cewa kyau yana fitowa daga yin alheri." },
+        ];
+      default:
+        return [
+          { text: "Once upon a time, there was a brave lion.", hausa: "Da zamanin da, akwai wani zakimai." },
+          { text: "The lion lived in a big forest.", hausa: "Zakin yana zaune a babban daji." },
+          { text: "Every day, he helped other animals.", hausa: "Kullum yana taimaka wa sauran dabbobi." },
+          { text: "The animals loved their kind lion king.", hausa: "Dabbobi sun so sarkinsu zakimai." },
+        ];
+    }
+  };
+
+  const storyContent = getStoryContent(gameId);
 
   const handleAnswerSelect = (isCorrect: boolean) => {
     if (isCorrect) {
