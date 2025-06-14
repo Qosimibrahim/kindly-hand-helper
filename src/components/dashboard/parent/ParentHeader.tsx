@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Smartphone, Download, Settings, LogOut } from 'lucide-react';
@@ -18,14 +17,31 @@ export const ParentHeader = ({
   onSettingsModalOpen, 
   onLogout 
 }: ParentHeaderProps) => {
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error('Failed to load Kidandu logo:', e);
+    // Fallback to text if image fails to load
+    (e.target as HTMLImageElement).style.display = 'none';
+  };
+
+  const handleImageLoad = () => {
+    console.log('Kidandu logo loaded successfully');
+  };
+
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
       <div className="flex items-center gap-4">
-        <img 
-          src="/lovable-uploads/71402c0d-1ea3-446f-b142-622a8eb46048.png" 
-          alt="Kidandu Logo" 
-          className="h-12 w-auto"
-        />
+        <div className="flex items-center">
+          <img 
+            src="/lovable-uploads/71402c0d-1ea3-446f-b142-622a8eb46048.png" 
+            alt="Kidandu Logo" 
+            className="h-12 w-auto"
+            onError={handleImageError}
+            onLoad={handleImageLoad}
+          />
+          <span className="text-2xl font-bold text-orange-900 ml-2" id="logo-fallback" style={{ display: 'none' }}>
+            Kidandu
+          </span>
+        </div>
         <div>
           <h1 className="text-3xl font-bold text-orange-900">Parent Dashboard</h1>
           <p className="text-orange-700 mt-1">

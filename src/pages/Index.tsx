@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { UserTypeSelection } from '@/components/onboarding/UserTypeSelection';
 import { ParentOnboarding } from '@/components/onboarding/ParentOnboarding';
@@ -146,6 +145,20 @@ const Index = () => {
     setActiveChildProfile(null);
   };
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error('Failed to load Kidandu logo in loading screen:', e);
+    // Show fallback text
+    const fallback = document.getElementById('loading-logo-fallback');
+    if (fallback) {
+      fallback.style.display = 'block';
+    }
+    (e.target as HTMLImageElement).style.display = 'none';
+  };
+
+  const handleImageLoad = () => {
+    console.log('Loading screen Kidandu logo loaded successfully');
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-100 via-orange-50 to-amber-50">
@@ -154,7 +167,12 @@ const Index = () => {
             src="/lovable-uploads/71402c0d-1ea3-446f-b142-622a8eb46048.png" 
             alt="Kidandu Logo" 
             className="h-16 w-auto mx-auto mb-6"
+            onError={handleImageError}
+            onLoad={handleImageLoad}
           />
+          <div id="loading-logo-fallback" className="text-3xl font-bold text-orange-900 mb-6" style={{ display: 'none' }}>
+            Kidandu
+          </div>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
           <p className="text-orange-800 text-lg">Loading Kidandu...</p>
         </div>
