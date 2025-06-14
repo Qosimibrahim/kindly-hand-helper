@@ -22,7 +22,7 @@ export const ParentHeader = ({
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
       <div className="flex items-center gap-4">
         <img 
-          src="/lovable-uploads/78db9558-bb0a-4b7c-95b8-b4fca3dd8dcc.png" 
+          src="/lovable-uploads/71402c0d-1ea3-446f-b142-622a8eb46048.png" 
           alt="Kidandu Logo" 
           className="h-12 w-auto"
         />

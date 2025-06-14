@@ -151,7 +151,7 @@ const Index = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-100 via-orange-50 to-amber-50">
         <div className="text-center">
           <img 
-            src="/lovable-uploads/78db9558-bb0a-4b7c-95b8-b4fca3dd8dcc.png" 
+            src="/lovable-uploads/71402c0d-1ea3-446f-b142-622a8eb46048.png" 
             alt="Kidandu Logo" 
             className="h-16 w-auto mx-auto mb-6"
           />
