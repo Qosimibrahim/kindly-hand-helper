@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { UserTypeSelection } from '@/components/onboarding/UserTypeSelection';
 import { ParentOnboarding } from '@/components/onboarding/ParentOnboarding';
@@ -165,7 +164,7 @@ const Index = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-100 via-orange-50 to-amber-50">
         <div className="text-center">
           <img 
-            src="/lovable-uploads/kidandu-logo.png" 
+            src="/lovable-uploads/82d46a29-0f76-47b3-afd9-8917a04c3d0c.png" 
             alt="Kidandu Logo" 
             className="h-16 w-auto mx-auto mb-6"
             onError={handleImageError}
