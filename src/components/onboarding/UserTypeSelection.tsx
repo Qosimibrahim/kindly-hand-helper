@@ -7,16 +7,29 @@ interface UserTypeSelectionProps {
 }
 
 export const UserTypeSelection = ({ onUserTypeSelect }: UserTypeSelectionProps) => {
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error('Failed to load Kidandu logo in UserTypeSelection:', e);
+    const fallback = document.getElementById('user-type-logo-fallback');
+    if (fallback) {
+      fallback.style.display = 'block';
+    }
+    (e.target as HTMLImageElement).style.display = 'none';
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-100 via-orange-50 to-amber-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full text-center space-y-8">
         <div className="space-y-6">
           <div className="flex justify-center">
             <img 
-              src="/lovable-uploads/78db9558-bb0a-4b7c-95b8-b4fca3dd8dcc.png" 
+              src="/lovable-uploads/36e81c03-4c5c-47e1-a776-3832ac1c3503.png" 
               alt="Kidandu Logo" 
               className="h-32 w-auto drop-shadow-lg"
+              onError={handleImageError}
             />
+            <div id="user-type-logo-fallback" className="text-4xl font-bold text-orange-900 drop-shadow-lg" style={{ display: 'none' }}>
+              Kidandu
+            </div>
           </div>
           <div className="space-y-4">
             <h1 className="text-4xl font-bold text-orange-900">

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -56,6 +55,15 @@ export const PlanSelection = ({ onPlanSelected }: PlanSelectionProps) => {
   const [selectedPlan, setSelectedPlan] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error('Failed to load Kidandu logo in PlanSelection:', e);
+    const fallback = document.getElementById('plan-logo-fallback');
+    if (fallback) {
+      fallback.style.display = 'block';
+    }
+    (e.target as HTMLImageElement).style.display = 'none';
+  };
+
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId);
   };
@@ -92,10 +100,14 @@ export const PlanSelection = ({ onPlanSelected }: PlanSelectionProps) => {
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img 
-            src="/lovable-uploads/78db9558-bb0a-4b7c-95b8-b4fca3dd8dcc.png" 
+            src="/lovable-uploads/36e81c03-4c5c-47e1-a776-3832ac1c3503.png" 
             alt="Kidandu Logo" 
             className="h-16 w-auto"
+            onError={handleImageError}
           />
+          <div id="plan-logo-fallback" className="text-2xl font-bold text-purple-900" style={{ display: 'none' }}>
+            Kidandu
+          </div>
         </div>
 
         <div className="text-center">

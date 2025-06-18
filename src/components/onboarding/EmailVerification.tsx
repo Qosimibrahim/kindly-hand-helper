@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +19,15 @@ export const EmailVerification = ({ onVerified }: EmailVerificationProps) => {
   const [error, setError] = useState('');
   const [otpAttempts, setOtpAttempts] = useState(0);
   const { toast } = useToast();
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error('Failed to load Kidandu logo in EmailVerification:', e);
+    const fallback = document.getElementById('email-logo-fallback');
+    if (fallback) {
+      fallback.style.display = 'block';
+    }
+    (e.target as HTMLImageElement).style.display = 'none';
+  };
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
@@ -91,10 +99,14 @@ export const EmailVerification = ({ onVerified }: EmailVerificationProps) => {
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img 
-            src="/lovable-uploads/78db9558-bb0a-4b7c-95b8-b4fca3dd8dcc.png" 
+            src="/lovable-uploads/36e81c03-4c5c-47e1-a776-3832ac1c3503.png" 
             alt="Kidandu Logo" 
             className="h-16 w-auto"
+            onError={handleImageError}
           />
+          <div id="email-logo-fallback" className="text-2xl font-bold text-orange-900" style={{ display: 'none' }}>
+            Kidandu
+          </div>
         </div>
 
         <div className="text-center">

@@ -20,7 +20,11 @@ export const ParentHeader = ({
 }: ParentHeaderProps) => {
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     console.error('Failed to load Kidandu logo:', e);
-    // Fallback to text if image fails to load
+    // Show fallback text
+    const fallback = document.getElementById('logo-fallback');
+    if (fallback) {
+      fallback.style.display = 'block';
+    }
     (e.target as HTMLImageElement).style.display = 'none';
   };
 
