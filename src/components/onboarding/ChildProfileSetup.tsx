@@ -28,31 +28,20 @@ const avatars = [
 ];
 
 const languages = [
-  { id: 'swahili', name: 'Swahili', flag: '🇰🇪', region: 'East Africa' },
-  { id: 'hausa', name: 'Hausa', flag: '🇳🇬', region: 'Nigeria/Niger' },
-  { id: 'igbo', name: 'Igbo', flag: '🇳🇬', region: 'Nigeria' },
   { id: 'yoruba', name: 'Yoruba', flag: '🇳🇬', region: 'Nigeria' },
-  { id: 'english', name: 'English', flag: '🇬🇧', region: 'Global' },
-  { id: 'amharic', name: 'Amharic', flag: '🇪🇹', region: 'Ethiopia' },
-  { id: 'zulu', name: 'Zulu', flag: '🇿🇦', region: 'South Africa' },
-  { id: 'xhosa', name: 'Xhosa', flag: '🇿🇦', region: 'South Africa' },
-  { id: 'oromo', name: 'Oromo', flag: '🇪🇹', region: 'Ethiopia' },
-  { id: 'arabic', name: 'Arabic', flag: '🇪🇬', region: 'North Africa' },
-  { id: 'somali', name: 'Somali', flag: '🇸🇴', region: 'Somalia' },
-  { id: 'wolof', name: 'Wolof', flag: '🇸🇳', region: 'Senegal' },
-  { id: 'akan', name: 'Akan/Twi', flag: '🇬🇭', region: 'Ghana' },
-  { id: 'luganda', name: 'Luganda', flag: '🇺🇬', region: 'Uganda' },
+  { id: 'igbo', name: 'Igbo', flag: '🇳🇬', region: 'Nigeria' },
+  { id: 'hausa', name: 'Hausa', flag: '🇳🇬', region: 'Nigeria/Niger' },
+  { id: 'swahili', name: 'Swahili', flag: '🇰🇪', region: 'East Africa' },
   { id: 'kikongo', name: 'Kikongo', flag: '🇨🇩', region: 'Central Africa' },
-  { id: 'shona', name: 'Shona', flag: '🇿🇼', region: 'Zimbabwe' },
 ];
 
 const getAvailableLanguages = (plan: string) => {
   switch (plan) {
-    case 'free': return languages.slice(0, 3);
-    case 'basic': return languages.slice(0, 6);
-    case 'standard': return languages.slice(0, 12);
+    case 'free': return languages.slice(0, 2);
+    case 'basic': return languages.slice(0, 3);
+    case 'standard': return languages.slice(0, 4);
     case 'premium': return languages;
-    default: return languages.slice(0, 3);
+    default: return languages.slice(0, 2);
   }
 };
 
@@ -125,7 +114,7 @@ export const ChildProfileSetup = ({ selectedPlan, onProfileCreated }: ChildProfi
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img 
-            src="/lovable-uploads/78db9558-bb0a-4b7c-95b8-b4fca3dd8dcc.png" 
+            src="/lovable-uploads/36e81c03-4c5c-47e1-a776-3832ac1c3503.png" 
             alt="Kidandu Logo" 
             className="h-16 w-auto"
           />

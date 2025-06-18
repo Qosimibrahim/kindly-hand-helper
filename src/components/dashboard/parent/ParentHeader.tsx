@@ -33,7 +33,7 @@ export const ParentHeader = ({
       <div className="flex items-center gap-4">
         <div className="flex items-center">
           <img 
-            src="/lovable-uploads/46aabcfd-8a33-4c9d-9c98-ddd23667222a.png" 
+            src="/lovable-uploads/36e81c03-4c5c-47e1-a776-3832ac1c3503.png" 
             alt="Kidandu Logo" 
             className="h-12 w-auto"
             onError={handleImageError}

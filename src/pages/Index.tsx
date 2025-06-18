@@ -165,7 +165,7 @@ const Index = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-100 via-orange-50 to-amber-50">
         <div className="text-center">
           <img 
-            src="/lovable-uploads/46aabcfd-8a33-4c9d-9c98-ddd23667222a.png" 
+            src="/lovable-uploads/36e81c03-4c5c-47e1-a776-3832ac1c3503.png" 
             alt="Kidandu Logo" 
             className="h-16 w-auto mx-auto mb-6"
             onError={handleImageError}
