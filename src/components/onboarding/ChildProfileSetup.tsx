@@ -37,11 +37,11 @@ const languages = [
 
 const getAvailableLanguages = (plan: string) => {
   switch (plan) {
-    case 'free': return languages.slice(0, 2);
-    case 'basic': return languages.slice(0, 3);
-    case 'standard': return languages.slice(0, 4);
-    case 'premium': return languages;
-    default: return languages.slice(0, 2);
+    case 'free': return languages.slice(0, 2); // Yoruba, Igbo
+    case 'basic': return languages.slice(0, 3); // Yoruba, Igbo, Hausa
+    case 'standard': return languages.slice(0, 4); // Yoruba, Igbo, Hausa, Swahili
+    case 'premium': return languages; // All 5 languages
+    default: return languages; // Show all 5 by default
   }
 };
 
@@ -54,6 +54,15 @@ export const ChildProfileSetup = ({ selectedPlan, onProfileCreated }: ChildProfi
   const { toast } = useToast();
 
   const availableLanguages = getAvailableLanguages(selectedPlan);
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error('Failed to load Kidandu logo in ChildProfileSetup:', e);
+    const fallback = document.getElementById('child-setup-logo-fallback');
+    if (fallback) {
+      fallback.style.display = 'block';
+    }
+    (e.target as HTMLImageElement).style.display = 'none';
+  };
 
   const handleCreateProfile = () => {
     setError('');
@@ -117,7 +126,11 @@ export const ChildProfileSetup = ({ selectedPlan, onProfileCreated }: ChildProfi
             src="/lovable-uploads/36e81c03-4c5c-47e1-a776-3832ac1c3503.png" 
             alt="Kidandu Logo" 
             className="h-16 w-auto"
+            onError={handleImageError}
           />
+          <div id="child-setup-logo-fallback" className="text-3xl font-bold text-emerald-900" style={{ display: 'none' }}>
+            Kidandu
+          </div>
         </div>
 
         <div className="text-center">
@@ -214,7 +227,7 @@ export const ChildProfileSetup = ({ selectedPlan, onProfileCreated }: ChildProfi
             <Alert className="mt-3 border-blue-200 bg-blue-50">
               <Info className="h-4 w-4 text-blue-600" />
               <AlertDescription className="text-blue-800">
-                This language will be locked to this profile. {selectedPlan !== 'standard' && selectedPlan !== 'premium' && 'Upgrade to Standard or Premium to switch languages later.'}
+                This language will be locked to this profile. {selectedPlan !== 'standard' && selectedPlan !== 'premium' && 'Upgrade to Standard or Premium to access more languages.'}
               </AlertDescription>
             </Alert>
           </div>
