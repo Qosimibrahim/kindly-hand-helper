@@ -87,13 +87,26 @@ export const PlanSelection = ({ onPlanSelected, onPaymentRequired, onExistingPar
     if (selectedPlan === 'free') {
       setTimeout(() => {
         onPlanSelected(selectedPlan);
+        setIsProcessing(false);
       }, 1000);
     } else {
       // For paid plans, go to payment page
       setTimeout(() => {
         onPaymentRequired(selectedPlan);
+        setIsProcessing(false);
       }, 1000);
     }
+  };
+
+  const handleExistingParentClick = () => {
+    // Simulate login and go directly to parent dashboard
+    localStorage.setItem('parentSession', JSON.stringify({
+      email: 'existing@parent.com',
+      pin: '1234',
+      selectedPlan: 'standard'
+    }));
+    localStorage.setItem('onboardingComplete', 'true');
+    onExistingParentLogin();
   };
 
   return (
@@ -191,7 +204,7 @@ export const PlanSelection = ({ onPlanSelected, onPaymentRequired, onExistingPar
           <div className="pt-4">
             <Button
               variant="outline"
-              onClick={onExistingParentLogin}
+              onClick={handleExistingParentClick}
               className="flex items-center px-8 py-3 text-lg border-purple-300 text-purple-700 hover:bg-purple-50 rounded-xl"
             >
               <LogIn className="mr-2 h-5 w-5" />

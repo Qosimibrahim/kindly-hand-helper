@@ -30,8 +30,8 @@ export const EmailVerification = ({ onVerified }: EmailVerificationProps) => {
   };
 
   const validateEmail = (email: string) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
+    // Accept any email that contains @ symbol - more lenient validation
+    return email.includes('@') && email.length > 3;
   };
 
   const handleSendOTP = async () => {
@@ -62,9 +62,8 @@ export const EmailVerification = ({ onVerified }: EmailVerificationProps) => {
       return;
     }
 
-    // Simulate OTP verification - accept "123456" or last 6 digits of email
-    const validOtp = '123456';
-    if (otp === validOtp) {
+    // Simulate OTP verification - accept "123456" or any 6-digit code for demo
+    if (otp.length === 6) {
       localStorage.setItem('emailVerified', 'true');
       localStorage.setItem('verifiedEmail', email);
       toast({

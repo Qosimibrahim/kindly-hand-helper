@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { UserTypeSelection } from '@/components/onboarding/UserTypeSelection';
 import { ParentOnboarding } from '@/components/onboarding/ParentOnboarding';
@@ -106,11 +105,13 @@ const Index = () => {
   };
 
   const handleOnboardingComplete = () => {
+    localStorage.setItem('onboardingComplete', 'true');
     setCurrentMode('parent-dashboard');
   };
 
   const handleExistingParentLogin = () => {
     // Simulate existing parent login - in real app this would verify credentials
+    localStorage.setItem('onboardingComplete', 'true');
     setCurrentMode('parent-dashboard');
   };
 
