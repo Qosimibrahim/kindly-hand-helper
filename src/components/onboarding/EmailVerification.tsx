@@ -30,14 +30,14 @@ export const EmailVerification = ({ onVerified }: EmailVerificationProps) => {
   };
 
   const validateEmail = (email: string) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
   };
 
   const handleSendOTP = async () => {
     setError('');
     if (!validateEmail(email)) {
-      setError('Please enter a valid Gmail address');
+      setError('Please enter a valid email address');
       return;
     }
 
@@ -50,7 +50,7 @@ export const EmailVerification = ({ onVerified }: EmailVerificationProps) => {
       localStorage.setItem('onboardingProgress', JSON.stringify({ step: 'otp', email }));
       toast({
         title: "Code Sent! 📧",
-        description: "Check your Gmail for the 6-digit code",
+        description: "Check your email for the 6-digit code",
       });
     }, 2000);
   };
@@ -69,7 +69,7 @@ export const EmailVerification = ({ onVerified }: EmailVerificationProps) => {
       localStorage.setItem('verifiedEmail', email);
       toast({
         title: "Email Verified! ✅",
-        description: "Great! Your Gmail has been verified",
+        description: "Great! Your email has been verified",
       });
       onVerified(email);
     } else {
@@ -114,12 +114,12 @@ export const EmailVerification = ({ onVerified }: EmailVerificationProps) => {
             <Mail className="w-10 h-10 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-orange-900 mb-2">
-            {step === 'email' ? 'Enter Your Gmail' : 'Enter Your Code'}
+            {step === 'email' ? 'Enter Your Email' : 'Enter Your Code'}
           </h2>
           <p className="text-orange-700">
             {step === 'email' 
-              ? 'We need your Gmail to keep your account safe'
-              : `Check your Gmail for the 6-digit code`
+              ? 'We need your email to keep your account safe'
+              : `Check your email for the 6-digit code`
             }
           </p>
         </div>
@@ -134,11 +134,11 @@ export const EmailVerification = ({ onVerified }: EmailVerificationProps) => {
         {step === 'email' ? (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="email" className="text-orange-900 font-medium">Gmail Address</Label>
+              <Label htmlFor="email" className="text-orange-900 font-medium">Email Address</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="your.email@gmail.com"
+                placeholder="your.email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-2 h-12 text-lg border-orange-200 focus:border-orange-400 rounded-xl"
