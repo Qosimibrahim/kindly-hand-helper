@@ -1,9 +1,11 @@
 
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { UserPlus, AlertTriangle, Crown, Trash2 } from 'lucide-react';
+import { UserPlus, AlertTriangle, Crown, Trash2, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ChildProgressModal } from './ChildProgressModal';
 
 interface ChildProfile {
   id: string;
@@ -48,6 +50,7 @@ const getLanguageFlag = (languageId: string) => {
     'swahili': '🇰🇪',
     'yoruba': '🇳🇬',
     'igbo': '🇳🇬',
+    'kikongo': '🇨🇩',
     'english': '🇬🇧',
     'amharic': '🇪🇹',
     'zulu': '🇿🇦',
@@ -63,6 +66,8 @@ export const ChildProfilesSection = ({
   onUpgradeModal,
   onDeleteChild
 }: ChildProfilesSectionProps) => {
+  const [selectedChild, setSelectedChild] = useState<ChildProfile | null>(null);
+  const [showProgressModal, setShowProgressModal] = useState(false);
   const { toast } = useToast();
 
   const handleDeleteChild = (childId: string, childName: string) => {
@@ -73,6 +78,11 @@ export const ChildProfilesSection = ({
         description: `${childName}'s profile has been removed.`,
       });
     }
+  };
+
+  const handleViewProgress = (child: ChildProfile) => {
+    setSelectedChild(child);
+    setShowProgressModal(true);
   };
 
   return (
@@ -130,7 +140,13 @@ export const ChildProfilesSection = ({
               <Badge variant="outline" className="border-orange-300 text-orange-700">
                 {profile.plan?.charAt(0).toUpperCase() + profile.plan?.slice(1) || 'Free'} Plan
               </Badge>
-              <Button variant="outline" size="sm" className="w-full border-orange-300 text-orange-700 hover:bg-orange-50">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full border-orange-300 text-orange-700 hover:bg-orange-50"
+                onClick={() => handleViewProgress(profile)}
+              >
+                <TrendingUp className="w-4 h-4 mr-2" />
                 View Progress
               </Button>
             </CardContent>
@@ -188,6 +204,12 @@ export const ChildProfilesSection = ({
           </CardContent>
         </Card>
       )}
+
+      <ChildProgressModal 
+        open={showProgressModal}
+        onOpenChange={setShowProgressModal}
+        childProfile={selectedChild}
+      />
     </div>
   );
 };

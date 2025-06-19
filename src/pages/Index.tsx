@@ -109,6 +109,11 @@ const Index = () => {
     setCurrentMode('parent-dashboard');
   };
 
+  const handleExistingParentLogin = () => {
+    // Simulate existing parent login - in real app this would verify credentials
+    setCurrentMode('parent-dashboard');
+  };
+
   const handleChildLinkingComplete = () => {
     // After linking, check for child profiles
     const childProfiles = JSON.parse(localStorage.getItem('childProfiles') || '[]');
@@ -187,7 +192,10 @@ const Index = () => {
         <UserTypeSelection onUserTypeSelect={handleUserTypeSelect} />
       )}
       {currentMode === 'parent-onboarding' && (
-        <ParentOnboarding onComplete={handleOnboardingComplete} />
+        <ParentOnboarding 
+          onComplete={handleOnboardingComplete}
+          onExistingParentLogin={handleExistingParentLogin}
+        />
       )}
       {currentMode === 'child-linking' && (
         <ChildLinking onComplete={handleChildLinkingComplete} />

@@ -1,11 +1,14 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Crown, Star, Users, Zap } from 'lucide-react';
+import { Check, Crown, Star, Users, Zap, LogIn } from 'lucide-react';
 
 interface PlanSelectionProps {
   onPlanSelected: (plan: string) => void;
+  onPaymentRequired: (plan: string) => void;
+  onExistingParentLogin: () => void;
 }
 
 const plans = [
@@ -24,7 +27,7 @@ const plans = [
     name: 'Basic',
     price: '$4.99/month',
     profiles: 2,
-    features: ['2 child profiles', 'All learning games', 'Progress tracking', '4 African languages'],
+    features: ['2 child profiles', 'All learning games', 'Progress tracking', '3 African languages'],
     icon: Star,
     popular: false,
     color: 'bg-gradient-to-br from-blue-400 to-blue-500',
@@ -34,7 +37,7 @@ const plans = [
     name: 'Standard',
     price: '$8.99/month',
     profiles: 4,
-    features: ['4 child profiles', 'Advanced activities', 'Detailed reports', 'All 6 African languages', 'Language switching'],
+    features: ['4 child profiles', 'Advanced activities', 'Detailed reports', '4 African languages', 'Language switching'],
     icon: Crown,
     popular: true,
     color: 'bg-gradient-to-br from-orange-400 to-orange-500',
@@ -44,14 +47,14 @@ const plans = [
     name: 'Premium',
     price: '$12.99/month',
     profiles: 8,
-    features: ['8 child profiles', 'Unlimited access', 'Premium content', 'All languages + extras', 'Priority support', 'Offline mode'],
+    features: ['8 child profiles', 'Unlimited access', 'Premium content', 'All 5 languages + extras', 'Priority support', 'Offline mode'],
     icon: Zap,
     popular: false,
     color: 'bg-gradient-to-br from-purple-400 to-purple-500',
   },
 ];
 
-export const PlanSelection = ({ onPlanSelected }: PlanSelectionProps) => {
+export const PlanSelection = ({ onPlanSelected, onPaymentRequired, onExistingParentLogin }: PlanSelectionProps) => {
   const [selectedPlan, setSelectedPlan] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -86,11 +89,10 @@ export const PlanSelection = ({ onPlanSelected }: PlanSelectionProps) => {
         onPlanSelected(selectedPlan);
       }, 1000);
     } else {
-      // Simulate payment processing
+      // For paid plans, go to payment page
       setTimeout(() => {
-        localStorage.setItem('paymentCompleted', 'true');
-        onPlanSelected(selectedPlan);
-      }, 2000);
+        onPaymentRequired(selectedPlan);
+      }, 1000);
     }
   };
 
@@ -169,7 +171,7 @@ export const PlanSelection = ({ onPlanSelected }: PlanSelectionProps) => {
           })}
         </div>
 
-        <div className="text-center">
+        <div className="text-center space-y-4">
           <Button
             onClick={handleContinue}
             disabled={!selectedPlan || isProcessing}
@@ -179,12 +181,23 @@ export const PlanSelection = ({ onPlanSelected }: PlanSelectionProps) => {
             {isProcessing ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-                {selectedPlan === 'free' ? 'Setting up...' : 'Processing payment...'}
+                {selectedPlan === 'free' ? 'Setting up...' : 'Proceeding to payment...'}
               </div>
             ) : (
               selectedPlan === 'free' ? 'Continue with Free Plan' : 'Proceed to Payment'
             )}
           </Button>
+
+          <div className="pt-4">
+            <Button
+              variant="outline"
+              onClick={onExistingParentLogin}
+              className="flex items-center px-8 py-3 text-lg border-purple-300 text-purple-700 hover:bg-purple-50 rounded-xl"
+            >
+              <LogIn className="mr-2 h-5 w-5" />
+              Already have an account? Login
+            </Button>
+          </div>
         </div>
 
         <div className="pt-4">

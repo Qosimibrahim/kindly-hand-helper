@@ -3,15 +3,17 @@ import { useState } from 'react';
 import { EmailVerification } from './EmailVerification';
 import { PinSetup } from './PinSetup';
 import { PlanSelection } from './PlanSelection';
+import { PaymentPage } from './PaymentPage';
 import { ChildProfileSetup } from './ChildProfileSetup';
 
 interface ParentOnboardingProps {
   onComplete: () => void;
+  onExistingParentLogin: () => void;
 }
 
-type OnboardingStep = 'email' | 'pin' | 'plan' | 'child-profile';
+type OnboardingStep = 'email' | 'pin' | 'plan' | 'payment' | 'child-profile';
 
-export const ParentOnboarding = ({ onComplete }: ParentOnboardingProps) => {
+export const ParentOnboarding = ({ onComplete, onExistingParentLogin }: ParentOnboardingProps) => {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('email');
   const [parentData, setParentData] = useState({
     email: '',
@@ -34,6 +36,19 @@ export const ParentOnboarding = ({ onComplete }: ParentOnboardingProps) => {
     setCurrentStep('child-profile');
   };
 
+  const handlePaymentRequired = (plan: string) => {
+    setParentData(prev => ({ ...prev, selectedPlan: plan }));
+    setCurrentStep('payment');
+  };
+
+  const handlePaymentComplete = () => {
+    setCurrentStep('child-profile');
+  };
+
+  const handleBackToPlanSelection = () => {
+    setCurrentStep('plan');
+  };
+
   const handleChildProfileCreated = () => {
     // Store parent session
     localStorage.setItem('parentSession', JSON.stringify(parentData));
@@ -49,7 +64,18 @@ export const ParentOnboarding = ({ onComplete }: ParentOnboardingProps) => {
         <PinSetup onPinSet={handlePinSet} />
       )}
       {currentStep === 'plan' && (
-        <PlanSelection onPlanSelected={handlePlanSelected} />
+        <PlanSelection 
+          onPlanSelected={handlePlanSelected}
+          onPaymentRequired={handlePaymentRequired}
+          onExistingParentLogin={onExistingParentLogin}
+        />
+      )}
+      {currentStep === 'payment' && (
+        <PaymentPage 
+          selectedPlan={parentData.selectedPlan}
+          onPaymentComplete={handlePaymentComplete}
+          onBack={handleBackToPlanSelection}
+        />
       )}
       {currentStep === 'child-profile' && (
         <ChildProfileSetup 
